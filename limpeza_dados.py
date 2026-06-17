@@ -12,17 +12,17 @@ colunas_clinicas = [
     'SBP', 'DBP', 'HR', 'RR', 'BT', 'Saturation', 'KTAS_expert'
 ]
 
+# Forçar todas as colunas de interesse a serem numéricas
+# O parâmetro errors='coerce' transforma sujeiras como '#BOÞ!' em vazios (NaN) 
+for col in colunas_clinicas:
+    df[col] = pd.to_numeric(df[col], errors='coerce')
+
 print("Quantidade de valores vazios antes da limpeza técnica:")
 print(df[colunas_clinicas].isna().sum())
 print("-" * 50)
 
 
 # TRATAMENTO DE LIMPEZA E TIPAGEM (IMPUTAÇÃO)
-
-# Correção: Forçar todas as colunas clínicas a serem numéricas.
-# O parâmetro errors='coerce' transforma sujeiras como '#BOÞ!' em vazios (NaN) 
-for col in colunas_clinicas:
-    df[col] = pd.to_numeric(df[col], errors='coerce')
 
 # 2. Tratamento para Variáveis Categóricas/Codificadas (Substituição pela Moda)
 var_categoricas = ['Sex', 'Injury', 'Mental', 'Pain']
@@ -36,17 +36,25 @@ for col in var_numericas:
     mediana_da_coluna = df[col].median()
     df[col] = df[col].fillna(mediana_da_coluna)
 
-# 4. Tratamento do Target (KTAS_expert)
+# 4. Tratamento e Binarização do Target (KTAS_expert)
+# Removemos pacientes que não possuem a classificação do especialista (target vazio)
 df = df.dropna(subset=['KTAS_expert'])
+
+# Mapeamento binário conforme o documento técnico:
+# níveis 1, 2 e 3 = 1 (Emergência)
+# níveis 4 e 5 = 0 (Não-Emergência)
+df['KTAS_target_binario'] = df['KTAS_expert'].apply(lambda x: 1 if x in [1, 2, 3] else 0)
 
 
 # VALIDAÇÃO DA LIMPEZA
 print("\nANÁLISE APÓS O PRÉ-PROCESSAMENTO:")
 print(f"Total de registros limpos e válidos: {df.shape[0]} pacientes.")
+print(f"Distribuição das classes do Target Binário:")
+print(df['KTAS_target_binario'].value_counts().rename({1: '1 (Emergência)', 0: '0 (Não-Emergência)'}))
 print("Quantidade de valores vazios por coluna após a limpeza:")
 print(df[colunas_clinicas].isna().sum())
 
-# Salvar uma cópia limpa e impecável
+# salvar uma cópia limpa
 df.to_csv('dataset_triagem_limpo.csv', index=False, encoding='utf-8')
 print("\nArquivo 'dataset_triagem_limpo.csv' gerado com sucesso!")
 
