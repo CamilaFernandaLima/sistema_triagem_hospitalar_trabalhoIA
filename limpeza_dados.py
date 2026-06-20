@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-# 1. Carregar o arquivo tratando os separadores e codificação
+# Carregar o arquivo tratando os separadores e codificação
 df = pd.read_csv('data.csv', na_values=['??', '?', 'null', ' '], encoding='latin1', sep=None, engine='python')
 
 print("ANÁLISE INICIAL DOS DADOS BRUTOS:")
@@ -24,19 +24,19 @@ print("-" * 50)
 
 # TRATAMENTO DE LIMPEZA E TIPAGEM (IMPUTAÇÃO)
 
-# 2. Tratamento para Variáveis Categóricas/Codificadas (Substituição pela Moda)
+# 1. Tratamento para Variáveis Categóricas/Codificadas (Substituição pela Moda)
 var_categoricas = ['Sex', 'Injury', 'Mental', 'Pain']
 for col in var_categoricas:
     moda_da_coluna = df[col].mode()[0]
     df[col] = df[col].fillna(moda_da_coluna)
 
-# 3. Tratamento para Variáveis Numéricas/Sinais Vitais (Substituição pela Mediana)
+# 2. Tratamento para Variáveis Numéricas/Sinais Vitais (Substituição pela Mediana)
 var_numericas = ['Age', 'NRS_pain', 'SBP', 'DBP', 'HR', 'RR', 'BT', 'Saturation']
 for col in var_numericas:
     mediana_da_coluna = df[col].median()
     df[col] = df[col].fillna(mediana_da_coluna)
 
-# 4. Tratamento e Binarização do Target (KTAS_expert)
+# 3. Tratamento e Binarização do Target (KTAS_expert)
 # Removemos pacientes que não possuem a classificação do especialista (target vazio)
 df = df.dropna(subset=['KTAS_expert'])
 
