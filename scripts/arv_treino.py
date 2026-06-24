@@ -27,10 +27,10 @@ warnings.filterwarnings("ignore")
 
 # CONFIGURAÇÃO
 
-TRAIN_PATH    = "data_split/train.csv"
-TEST_PATH     = "data_split/test.csv"
+TRAIN_PATH    = "data/data_split/train.csv"
+TEST_PATH     = "data/data_split/test.csv"
 TARGET_COLUMN = "KTAS_target_binario"
-OUTPUT_DIR    = "resultados"
+OUTPUT_DIR    = "resultados/dt"
 RANDOM_STATE  = 42
 
 FEATURES = [
@@ -48,7 +48,7 @@ def carregar_dados():
         if not os.path.exists(path):
             raise FileNotFoundError(
                 f"\n>>'{path}' não encontrado.\n"
-                "Execute b1_train_test_split.py antes deste script."
+                "Execute split.py antes deste script."
             )
     train = pd.read_csv(TRAIN_PATH)
     test  = pd.read_csv(TEST_PATH)
@@ -104,10 +104,11 @@ def buscar_melhor_combinacao(X_train, y_train):
     if melhor_prof is not None and not isinstance(melhor_prof, int):
         melhor_prof = int(melhor_prof)
 
-    print(f">>Melhor combinação encontrada:")
-    print(f"   Critério    : {melhor_criterio}")
-    print(f"   Profundidade: {melhor_prof}")
-    print(f"   F1-Emergência (CV): {melhor['f1_media']:.4f} ± {melhor['f1_desvio']:.4f}\n")
+    with open (f"{OUTPUT_DIR}/dt_melhor_hiperparametros.txt", "a") as f:
+        f.write(f"Melhor configuração:\n")
+        f.write(f"Critério    : {melhor_criterio}\n")
+        f.write(f"Profundidade: {melhor_prof}\n")
+        f.write(f"F1-Emergência (CV): {melhor['f1_media']:.4f} ± {melhor['f1_desvio']:.4f}\n")
 
     # >>>> Gráfico comparativo: F1 x profundidade por critério
     cores = {"gini": "#1976D2", "entropy": "#E53935", "log_loss": "#43A047"}
@@ -160,16 +161,20 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     auc        = roc_auc_score(y_test, y_prob)
     gap        = acc_treino - acc_teste
 
-    print(f">>Acurácia no Treino     : {acc_treino:.4f}")
-    print(f">>Acurácia no Teste      : {acc_teste:.4f}")
-    print(f"   Gap (treino - teste)   : {gap:.4f}  "
-          + (">>sem overfitting significativo" if gap < 0.05 else ">>overfitting moderado"))
-    print(f">>F1 Emergência (teste)  : {f1_emerg:.4f}   ← métrica principal")
-    print(f">>AUC-ROC                : {auc:.4f}\n")
-
-    print(">>Relatório de Classificação:")
-    print(classification_report(y_test, y_pred,
-          target_names=["Não-Emergência (0)", "Emergência (1)"]))
+    with open (f"{OUTPUT_DIR}/dt_metricas.txt", "a", encoding="utf-8") as f:
+        f.write(f"Critério: {criterio}\n")
+        f.write(f"Profundidade: {prof}\n")
+        f.write(f"Acurácia no Treino     : {acc_treino:.4f}\n")
+        f.write(f"Acurácia no Teste      : {acc_teste:.4f}\n")
+        f.write(f"Gap (treino - teste)   : {gap:.4f} " + ("sem overfitting significativo" if gap < 0.05 else "overfitting moderado"))
+        f.write(f"F1 Emergência (teste)  : {f1_emerg:.4f}\n")
+        f.write(f"AUC-ROC                : {auc:.4f}\n")
+    with  open (f"{OUTPUT_DIR}/dt_relatorio_classificacao.txt", "a", encoding="utf-8") as f:
+        f.write(f"Critério: {criterio}\n")
+        f.write(f"Profundidade: {prof}\n\n")
+        f.write("Relatório de Classificação:\n")
+        f.write(classification_report(y_test, y_pred,
+              target_names=["Não-Emergência (0)", "Emergência (1)"]))
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     feature_names = X_train.columns.tolist()
@@ -227,7 +232,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         print(f">>Visualização da árvore    : {OUTPUT_DIR}/dt_arvore.png")
 
         regras = export_text(modelo, feature_names=feature_names)
-        with open(f"{OUTPUT_DIR}/dt_regras.txt", "w", encoding="utf-8") as f:
+        with open(f"{OUTPUT_DIR}/dt_regras.txt", "a", encoding="utf-8") as f:
             f.write(f"Critério: {criterio}  |  max_depth: {prof}\n\n")
             f.write(regras)
         print(f">>Regras em texto           : {OUTPUT_DIR}/dt_regras.txt")
@@ -253,8 +258,10 @@ if __name__ == "__main__":
         X_train, y_train, X_test, y_test, melhor_criterio, melhor_prof
     )
 
+    with open(f"{OUTPUT_DIR}/dt_final.txt ", "a", encoding="utf-8") as f:
+        f.write(f"Critério escolhido    : {melhor_criterio}\n")
+        f.write(f"Profundidade escolhida: {melhor_prof}\n")
+        f.write(f"F1-Emergência (teste) : {f1_emerg:.4f}\n")
+        f.write(f"AUC-ROC               : {auc:.4f}\n")
+
     print(f"\n>>Concluído! Resultados em '{OUTPUT_DIR}/'")
-    print(f"   Critério escolhido    : {melhor_criterio}")
-    print(f"   Profundidade escolhida: {melhor_prof}")
-    print(f"   F1-Emergência (teste) : {f1_emerg:.4f}")
-    print(f"   AUC-ROC               : {auc:.4f}")

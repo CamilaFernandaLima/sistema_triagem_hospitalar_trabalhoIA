@@ -1,0 +1,7 @@
+Avaliação do modelo Random Forest:
+n_estimators : 200
+max_depth    : 4
+Threshold    : 0.29
+Acurácia no Treino     : 0.7749
+Acurácia no Teste      : 0.6732
+Gap (treino - teste)   : 0.1017  >>  overfitting moderado

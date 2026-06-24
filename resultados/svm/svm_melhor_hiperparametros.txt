@@ -1,0 +1,5 @@
+Melhor configuração:
+kernel : rbf
+C      : 1.0
+gamma  : scale
+F1-Emergência (CV): 0.7868 ± 0.0229

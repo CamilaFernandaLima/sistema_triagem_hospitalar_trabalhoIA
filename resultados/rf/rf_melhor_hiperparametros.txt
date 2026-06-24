@@ -1,0 +1,4 @@
+Melhor configuração:
+n_estimators : 200
+max_depth    : 4
+F1-Emergência (CV): 0.8054 ± 0.0261

@@ -1,0 +1,4 @@
+Critério escolhido    : entropy
+Profundidade escolhida: 4
+F1-Emergência (teste) : 0.6760
+AUC-ROC               : 0.6719

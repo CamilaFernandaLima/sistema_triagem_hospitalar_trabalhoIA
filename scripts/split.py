@@ -1,28 +1,32 @@
 """
-Divisão Treino/Teste com Estratificação
+Divisão Treino/Teste com Estratificação e Normalização
 ================================================================
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
-Divisão: 80% treino / 20% teste com estratificação
+Divisão: 80% treino / 20% teste com estratificação e Z-score
 """
 
 import pandas as pd
 from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler  # <-- Importação adicionada
 import os
 
 # ──────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO
 # ──────────────────────────────────────────────────────────────
-DATASET_PATH  = "dataset_triagem_limpo.csv"   # arquivo gerado por limpeza_dados.py
+DATASET_PATH  = "data\dataset_triagem_limpo.csv"   # arquivo gerado por limpeza_dados.py
 TARGET_COLUMN = "KTAS_target_binario"
 RANDOM_STATE  = 42
 TEST_SIZE     = 0.20
-OUTPUT_DIR    = "data_split"
+OUTPUT_DIR    = "data\data_split" 
 
 # Colunas clínicas usadas como features (descarta texto e leakage)
 FEATURES = [
     "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",
     "SBP", "DBP", "HR", "RR", "BT", "Saturation"
 ]
+
+# Variáveis contínuas que necessitam de Z-score para o KNN
+VAR_CONTINUAS = ["Age", "NRS_pain", "SBP", "DBP", "HR", "RR", "BT", "Saturation"]
 # ──────────────────────────────────────────────────────────────
 
 
@@ -49,7 +53,7 @@ def preparar_xy(df):
 
     print(f"\n>>Features usadas ({len(features_existentes)}): {features_existentes}")
     print(f">>Target: '{TARGET_COLUMN}'")
-    print(f">>>Distribuição: {dict(y.value_counts().rename({1: 'Emergência (1)', 0: 'Não-Emergência (0)'}))}\n")
+    print(f">>>>Distribuição: {dict(y.value_counts().rename({1: 'Emergência (1)', 0: 'Não-Emergência (0)'}))}\n")
     return X, y
 
 
@@ -58,12 +62,12 @@ def dividir_e_salvar(X, y):
         X, y,
         test_size=TEST_SIZE,
         random_state=RANDOM_STATE,
-        stratify=y          # ← mantém proporção de classes em treino e teste
+        stratify=y          #  mantém proporção de classes em treino e teste
     )
 
     print(f">>Divisão realizada:")
-    print(f">>>Treino : {len(X_train)} amostras (80%)")
-    print(f">>>Teste  : {len(X_test)}  amostras (20%)\n")
+    print(f">>>>Treino : {len(X_train)} amostras (80%)")
+    print(f">>>>Teste  : {len(X_test)}  amostras (20%)\n")
 
     # Verificação de estratificação
     print(">>Proporção das classes por conjunto:")
@@ -72,9 +76,12 @@ def dividir_e_salvar(X, y):
         print(f"   {nome}: Não-Emergência={prop.get(0, 0):.1f}%  Emergência={prop.get(1, 0):.1f}%")
     print()
 
-    # Salva arquivos
+    # Cria o diretório de saída
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    # ----------------------------------------------------------
+    # VERSÃO ORIGINAL 
+    # ----------------------------------------------------------
     train_df = X_train.copy(); train_df[TARGET_COLUMN] = y_train
     test_df  = X_test.copy();  test_df[TARGET_COLUMN]  = y_test
 
@@ -84,16 +91,37 @@ def dividir_e_salvar(X, y):
     train_df.to_csv(train_path, index=False, encoding="utf-8")
     test_df.to_csv(test_path,   index=False, encoding="utf-8")
 
+    # ----------------------------------------------------------
+    # VERSÃO NORMALIZADA COM Z-SCORE 
+    # ----------------------------------------------------------
+    scaler = StandardScaler()
+    
+    X_train_norm = X_train.copy()
+    X_test_norm = X_test.copy()
+
+    # O scaler ajusta os parâmetros no treino e apenas transforma o teste (evita Data Leakage)
+    X_train_norm[VAR_CONTINUAS] = scaler.fit_transform(X_train[VAR_CONTINUAS])
+    X_test_norm[VAR_CONTINUAS] = scaler.transform(X_test[VAR_CONTINUAS])
+
+    train_norm_df = X_train_norm.copy(); train_norm_df[TARGET_COLUMN] = y_train
+    test_norm_df  = X_test_norm.copy();  test_norm_df[TARGET_COLUMN]  = y_test
+
+    train_norm_path = os.path.join(OUTPUT_DIR, "train_normalized.csv")
+    test_norm_path  = os.path.join(OUTPUT_DIR, "test_normalized.csv")
+
+    train_norm_df.to_csv(train_norm_path, index=False, encoding="utf-8")
+    test_norm_df.to_csv(test_norm_path,   index=False, encoding="utf-8")
+
     print(f">>Arquivos salvos em '{OUTPUT_DIR}/':")
-    print(f">>>{train_path}  ({len(train_df)} linhas)")
-    print(f">>>{test_path}   ({len(test_df)} linhas)")
+    print(f">>>>[Original] {train_path} e {test_path}")
+    print(f">>>>[Normalizado] {train_norm_path} e {test_norm_path}")
 
     return X_train, X_test, y_train, y_test
 
 
 if __name__ == "__main__":
     print("=" * 57)
-    print("Divisão Treino/Teste com Estratificação")
+    print("Divisão Treino/Teste com Estratificação e Escalonamento")
     print("=" * 57 + "\n")
 
     df = carregar_dataset()

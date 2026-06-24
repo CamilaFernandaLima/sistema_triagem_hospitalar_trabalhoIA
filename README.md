@@ -3,6 +3,7 @@ O projeto possui caráter de extensão universitária e está alinhado ao Objeti
 
 A partir de um dataset clínico real contendo 1.268 registros de triagem baseados na escala KTAS (Korean Triage and Acuity Scale) e de três modelos de classificação, o sistema realiza a análise preditiva da gravidade do paciente utilizando variáveis como sinais vitais (pressão arterial, frequência cardíaca, saturação de O2, temperatura) e dados demográficos.
 
+
 ### Integrantes
 * Camila Fernanda e Silva Lima
 * Maria Fernanda Siqueira de Moraes 
