@@ -1,0 +1,10 @@
+=== MÉTRICAS — KNN ===
+
+K : 37
+Métrica de distância : euclidean
+
+Acurácia no Treino : 0.7404
+Acurácia no Teste : 0.6969
+Gap (treino - teste) : 0.0435 (sem overfitting significativo)
+F1 Emergência (teste) : 0.7616
+AUC-ROC : 0.7208
