@@ -34,7 +34,7 @@ FEATURES = [
     "SBP", "DBP", "HR", "RR", "BT", "Saturation"
 ]
 
-K_NEIGHBORS = 37
+K_NEIGHBORS = 15
 METRIC = "euclidean"
 
 def carregar_dados():

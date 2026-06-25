@@ -4,9 +4,9 @@ Modelo: GaussianNB
 
                     precision    recall  f1-score   support
 
-Não-Emergência (0)       0.62      0.79      0.69       107
-    Emergência (1)       0.81      0.65      0.72       147
+Não-Emergência (0)       0.59      0.65      0.62       107
+    Emergência (1)       0.73      0.67      0.70       147
 
-          accuracy                           0.70       254
-         macro avg       0.71      0.72      0.70       254
-      weighted avg       0.73      0.70      0.71       254
+          accuracy                           0.67       254
+         macro avg       0.66      0.66      0.66       254
+      weighted avg       0.67      0.67      0.67       254

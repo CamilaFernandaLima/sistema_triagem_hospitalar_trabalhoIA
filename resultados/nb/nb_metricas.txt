@@ -2,8 +2,8 @@
 
 Modelo: GaussianNB
 
-Acurácia no Treino: 0.5962
-Acurácia no Teste: 0.7047
-Gap (treino - teste): -0.1085 (sem overfitting significativo)
-F1 Emergência (teste): 0.7170
-AUC-ROC: 0.7732
+Acurácia no Treino: 0.5884
+Acurácia no Teste: 0.6654
+Gap (treino - teste): -0.0770 (sem overfitting significativo)
+F1 Emergência (teste): 0.6996
+AUC-ROC: 0.6979

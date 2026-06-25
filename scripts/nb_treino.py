@@ -22,11 +22,11 @@ warnings.filterwarnings("ignore")
 
 # CONFIGURAÇÃO
 # ──────────────────────────────────────────────────────────────
-TRAIN_PATH    = "data/data_split/train_normalized.csv"
-TEST_PATH     = "data/data_split/test_normalized.csv"
+TRAIN_PATH = "data/data_split/train_normalized.csv"
+TEST_PATH = "data/data_split/test_normalized.csv"
 TARGET_COLUMN = "KTAS_target_binario"
-OUTPUT_DIR    = "resultados/nb"
-RANDOM_STATE  = 42
+OUTPUT_DIR = "resultados/nb"
+RANDOM_STATE = 42
 
 FEATURES = [
     "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",

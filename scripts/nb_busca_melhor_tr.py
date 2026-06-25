@@ -136,7 +136,7 @@ def buscar_melhor_threshold(X_train, y_train, X_test, y_test):
 
 if __name__ == "__main__":
     print("=" * 57)
-    print("Busca do Melhor Threshold — Naive Bayes")
+    print("Busca do Melhor Threshold - Naive Bayes")
     print("=" * 57 + "\n")
 
     train, test = carregar_dados()
