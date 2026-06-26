@@ -22,6 +22,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 import json
+import time
 
 from util import carregar_dados, separar_xy, FEATURES, TARGET_COLUMN
 
@@ -41,6 +42,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    inicio_treino = time.time()
     modelo = GaussianNB()
     modelo.fit(X_train, y_train)
 
@@ -53,6 +55,10 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
     f1_emerg = f1_score(y_test, y_pred, pos_label=1)
     auc = roc_auc_score(y_test, y_prob)
     gap = acc_treino - acc_teste
+    
+    fim_treino=time.time()
+
+    tempo_total = fim_treino - inicio_treino
 
     with open(f"{OUTPUT_DIR}/nb_metricas.txt", "w", encoding="utf-8") as f:
         f.write("=== MÉTRICAS — NAIVE BAYES ===\n\n")
@@ -71,6 +77,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
         "Gap":  float(gap),
         "F1_Emergencia": float(f1_emerg),
         "AUC_ROC": float(auc),
+        "tempo_treino": float(tempo_total),
         "Parametros": {
             "Modelo": "GaussianNB",
             "threshold": float(melhor_threshold)

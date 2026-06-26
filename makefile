@@ -87,37 +87,37 @@ $(TRAIN_FILE) $(TEST_FILE): $(DATASET) scripts/split.py $(STAMP)
 decision_tree: $(DT_RESULT)
 
 $(DT_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/arv_treino.py $(STAMP)
-	@echo [INFO] Treinando Decision Tree...
+	@echo [INFO] Treinando Decision Tree... (inicio %time%)
 	@$(PYTHON) scripts/arv_treino.py
-	@echo [OK] Resultados de Decision Tree salvos.
+	@echo [OK] Resultados de Decision Tree salvos. (fim %time%)
 
 random_forest: $(RF_RESULT)
 
 $(RF_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/random_treino.py $(STAMP)
-	@echo [INFO] Treinando Random Forest...
+	@echo [INFO] Treinando Random Forest... (inicio %time%)
 	@$(PYTHON) scripts/random_treino.py
-	@echo [OK] Resultados de Random Forest salvos.
+	@echo [OK] Resultados de Random Forest salvos. (fim %time%)
 
 svm: $(SVM_RESULT)
 
 $(SVM_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/svm_treino.py $(STAMP)
-	@echo [INFO] Treinando SVM...
+	@echo [INFO] Treinando SVM... (inicio %time%)
 	@$(PYTHON) scripts/svm_treino.py
-	@echo [OK] Resultados de SVM salvos.
+	@echo [OK] Resultados de SVM salvos. (fim %time%)
 
 naive_bayes: $(NB_RESULT)
 
 $(NB_RESULT): $(TRAIN_NORM) $(TEST_NORM) scripts/nb_treino.py $(STAMP)
-	@echo [INFO] Treinando Naive Bayes...
+	@echo [INFO] Treinando Naive Bayes... (inicio %time%)
 	@$(PYTHON) scripts/nb_treino.py
-	@echo [OK] Resultados de Naive Bayes salvos.
+	@echo [OK] Resultados de Naive Bayes salvos. (fim %time%)
 
 knn: $(KNN_RESULT)
 
 $(KNN_RESULT): $(TRAIN_NORM) $(TEST_NORM) scripts/knn_treino.py $(STAMP)
-	@echo [INFO] Treinando KNN...
-	@$(PYTHON) scripts/knn_treino.pys
-	@echo [OK] Resultados de KNN salvos.
+	@echo [INFO] Treinando KNN... (inicio %time%)
+	@$(PYTHON) scripts/knn_treino.py
+	@echo [OK] Resultados de KNN salvos. (fim %time%)
 
 # ── Consolidação e Comparação ────────────────────────────────
 comparar: $(COMP_RESULT)

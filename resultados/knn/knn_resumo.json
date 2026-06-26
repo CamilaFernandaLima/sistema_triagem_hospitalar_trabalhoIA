@@ -5,6 +5,7 @@
     "Gap": 0.053338100753200446,
     "F1_Emergencia": 0.7484662576687117,
     "AUC_ROC": 0.6721024858541547,
+    "tempo_treino": 0.2981698513031006,
     "Parametros": {
         "K": 15,
         "Metrica": "euclidean"

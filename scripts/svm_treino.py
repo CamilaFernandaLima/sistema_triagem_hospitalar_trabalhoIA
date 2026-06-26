@@ -29,6 +29,7 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 import warnings
 warnings.filterwarnings("ignore")
 import os
+import time
 import json
 
 # ──────────────────────────────────────────────────────────────
@@ -152,13 +153,34 @@ def encontrar_threshold(pipeline, X_test, y_test):
     return thr, y_prob
 
 
-def avaliar(pipeline, X_train, y_train, X_test, y_test, kernel, C, gamma, thr, y_prob):
+def treinar_e_avaliar(X_train, y_train, X_test, y_test):
+
+    kernel, C, gamma, _ = buscar_hiperparametros(X_train, y_train)
+
+    inicio_treino = time.time()
+
+    pipeline = Pipeline([
+        ("scaler", StandardScaler()),
+        ("svm", SVC(
+            kernel=kernel, C=C, gamma=gamma,
+            class_weight="balanced",
+            probability=True,
+            random_state=RANDOM_STATE
+        ))
+    ])
+    pipeline.fit(X_train, y_train)
+
+    print("[SVM]>> Ajustando threshold para minimizar falsos negativos...")
+    thr, y_prob = encontrar_threshold(pipeline, X_test, y_test)
     y_pred     = (y_prob >= thr).astype(int)
     acc_treino = accuracy_score(y_train, pipeline.predict(X_train))
     acc_teste  = accuracy_score(y_test, y_pred)
     f1_emerg   = f1_score(y_test, y_pred, pos_label=1)
     auc        = roc_auc_score(y_test, y_prob)
     gap        = acc_treino - acc_teste
+
+    fim_treino = time.time()
+    tempo_total = fim_treino - inicio_treino
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
@@ -169,7 +191,7 @@ def avaliar(pipeline, X_train, y_train, X_test, y_test, kernel, C, gamma, thr, y
         "Gap": float(acc_treino - acc_teste),
         "F1_Emergencia": float(f1_emerg),
         "AUC_ROC": float(auc),
-        # Você pode adicionar as configurações do modelo se quiser
+        "tempo_treino": float(tempo_total),
         "Parametros": {
             "kernel": kernel,
             "C": C,
@@ -233,22 +255,6 @@ if __name__ == "__main__":
     X_train, y_train = separar_xy(train)
     X_test,  y_test  = separar_xy(test)
 
-    mk, mC, mg, _ = buscar_hiperparametros(X_train, y_train)
-
-    pipeline = Pipeline([
-        ("scaler", StandardScaler()),
-        ("svm", SVC(
-            kernel=mk, C=mC, gamma=mg,
-            class_weight="balanced",
-            probability=True,
-            random_state=RANDOM_STATE
-        ))
-    ])
-    pipeline.fit(X_train, y_train)
-
-    print("[SVM]>> Ajustando threshold para minimizar falsos negativos...")
-    thr, y_prob = encontrar_threshold(pipeline, X_test, y_test)
-
-    avaliar(pipeline, X_train, y_train, X_test, y_test, mk, mC, mg, thr, y_prob)
+    treinar_e_avaliar(X_train, y_train, X_test, y_test)
 
     print(f"[SVM]>> Concluído! Resultados salvos em '{OUTPUT_DIR}/'")

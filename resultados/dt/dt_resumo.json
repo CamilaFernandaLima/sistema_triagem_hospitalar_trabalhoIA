@@ -5,6 +5,7 @@
     "Gap": 0.1282345259655968,
     "F1_Emergencia": 0.6759581881533101,
     "AUC_ROC": 0.6719435437726493,
+    "tempo_treino": 0.16286373138427734,
     "Parametros": {
         "profundidade": 4,
         "criterio": "entropy"

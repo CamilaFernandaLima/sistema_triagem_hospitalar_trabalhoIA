@@ -24,6 +24,7 @@ import os
 import warnings
 warnings.filterwarnings("ignore")
 import json
+import time
 from util import carregar_dados, separar_xy, TARGET_COLUMN, FEATURES
 
 
@@ -130,6 +131,8 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     print(f"  TREINAMENTO FINAL  (critério={criterio}, max_depth={prof})")
     print("=" * 57 + "\n")
 
+    inicio_treino = time.time()
+
     modelo = DecisionTreeClassifier(
         criterion=criterio,
         max_depth=prof,
@@ -147,6 +150,10 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     auc        = roc_auc_score(y_test, y_prob)
     gap        = acc_treino - acc_teste
 
+    fim_treino = time.time()
+
+    tempo_total = fim_treino - inicio_treino
+
     json_resumo = {
         "Modelo": " Árvore de Decisão",
         "Acuracia_Treino": float(acc_treino),
@@ -154,6 +161,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         "Gap":  float(gap),
         "F1_Emergencia": float(f1_emerg),
         "AUC_ROC": float(auc),
+        "tempo_treino": float(tempo_total),
         "Parametros": {
             "profundidade": prof,
             "criterio": criterio
@@ -258,6 +266,7 @@ if __name__ == "__main__":
     train, test = carregar_dados(TRAIN_PATH,TEST_PATH)
     X_train, y_train = separar_xy(train)
     X_test,  y_test  = separar_xy(test)
+
 
     melhor_criterio, melhor_prof, df_busca = buscar_melhor_combinacao(X_train, y_train)
 

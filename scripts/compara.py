@@ -97,6 +97,38 @@ def plotar_comparacao_barras(df, metrica, titulo, arquivo_saida, cor):
     plt.close()
     print(f">> Gráfico salvo: {arquivo_saida}")
 
+def plotar_tempo_vs_f1(df, arquivo_saida):
+    """Gera um gráfico de dispersão comparando Tempo de Treino vs F1-Score."""
+    fig, ax = plt.subplots(figsize=(8, 6))
+    
+    # Plota os pontos (cada modelo é uma bolinha)
+    ax.scatter(df["tempo_treino"], df["F1_Emergencia"], 
+               color="#FF9800", s=150, edgecolor="black", zorder=3)
+    
+    # Escreve o nome de cada modelo do lado da sua respectiva bolinha
+    for i, row in df.iterrows():
+        ax.annotate(
+            row["Modelo"], 
+            (row["tempo_treino"], row["F1_Emergencia"]),
+            xytext=(10, 5), # Desloca o texto um pouquinho para não ficar em cima do ponto
+            textcoords='offset points',
+            fontsize=11,
+            fontweight='bold',
+            color="#333333"
+        )
+        
+    ax.set_title("Eficiência vs Desempenho\n(Tempo de Treino x F1-Score)", fontsize=14, pad=15)
+    ax.set_xlabel("Tempo de Treinamento (segundos) — Quanto MENOR, melhor", fontsize=12)
+    ax.set_ylabel("F1-Score (Emergência) — Quanto MAIOR, melhor", fontsize=12)
+    
+    # Destaca em verde a área ideal (Canto Superior Esquerdo) de forma sutil
+    ax.grid(True, linestyle='--', alpha=0.7, zorder=0)
+    
+    plt.tight_layout()
+    plt.savefig(arquivo_saida, dpi=150)
+    plt.close()
+    print(f">> Gráfico salvo: {arquivo_saida}")
+
 if __name__ == "__main__":
     print("=" * 57)
     print("CONSOLIDAÇÃO E COMPARAÇÃO DOS MODELOS")
@@ -147,5 +179,14 @@ if __name__ == "__main__":
         arquivo_saida=os.path.join(OUTPUT_DIR, "comp_gap.png"),
         cor="#E53935"
     )
+
+    # Gráfico 4: Tempo de Treino vs F1-Score (Eficiência)
+    if "tempo_treino" in df_resultados.columns:
+        plotar_tempo_vs_f1(
+            df_resultados,
+            arquivo_saida=os.path.join(OUTPUT_DIR, "comp_tempo_vs_f1.png")
+        )
+    else:
+        print("[Aviso] A métrica 'tempo_treino' não foi encontrada em todos os JSONs.")
 
     print("\nComparação concluída com sucesso!")
