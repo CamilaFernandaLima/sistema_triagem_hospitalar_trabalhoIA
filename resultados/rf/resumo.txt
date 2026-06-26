@@ -1,0 +1,7 @@
+Resumo comparativo:
+Métrica                   Árvore Dec.     Random Forest   Melhora
+-----------------------------------------------------------------
+Acurácia                  0.6339          0.6732          ^ 0.0394
+F1-Emergência             0.6760          0.7713          ^ 0.0954
+AUC-ROC                   0.6719          0.7225          ^ 0.0505
+Falsos Negativos          50              7               v 43 emergências a menos perdidas

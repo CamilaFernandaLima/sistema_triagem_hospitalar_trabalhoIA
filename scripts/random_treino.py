@@ -2,7 +2,7 @@
 Random Forest + Comparação com Árvore de Decisão
 ==========================================================================
 Dataset: data/data_split/train.csv e test.csv (gerados por split.py)
-Target : KTAS_target_binario  →  1 = Emergência | 0 = Não-Emergência
+Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 
 Etapas:
   1. Busca de hiperparâmetros (n_estimators x max_depth) via CV 5-fold
@@ -29,20 +29,16 @@ import warnings
 warnings.filterwarnings('ignore')  # Suppress all warnings
 warnings.warn("This warning will be hidden")
 import os
+import json
+from util import carregar_dados, separar_xy, TARGET_COLUMN, FEATURES
 
 # ──────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO
 # ──────────────────────────────────────────────────────────────
 TRAIN_PATH    = "data/data_split/train.csv"
 TEST_PATH     = "data/data_split/test.csv"
-TARGET_COLUMN = "KTAS_target_binario"
 OUTPUT_DIR    = "resultados/rf"
 RANDOM_STATE  = 42
-
-FEATURES = [
-    "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",
-    "SBP", "DBP", "HR", "RR", "BT", "Saturation"
-]
 
 # Grid de busca para Random Forest
 N_ESTIMATORS_LISTA = [50, 100, 200, 300]
@@ -54,30 +50,11 @@ DT_MAX_DEPTH = 4
 # ──────────────────────────────────────────────────────────────
 
 
-def carregar_dados():
-    for path in [TRAIN_PATH, TEST_PATH]:
-        if not os.path.exists(path):
-            raise FileNotFoundError(
-                f"\n>> '{path}' não encontrado.\n"
-                "Execute split.py antes deste script."
-            )
-    train = pd.read_csv(TRAIN_PATH)
-    test  = pd.read_csv(TEST_PATH)
-    print(f">> Treino: {train.shape}   Teste: {test.shape}\n")
-    return train, test
-
-
-def separar_xy(df):
-    features = [c for c in FEATURES if c in df.columns]
-    return df[features], df[TARGET_COLUMN]
-
-
 # ── 1. BUSCA DE HIPERPARÂMETROS ───────────────────────────────
 def buscar_hiperparametros(X_train, y_train):
-    print(">> Buscando melhores hiperparâmetros do Random Forest")
-    print("   (5-fold CV, métrica: F1-Emergência)\n")
-    print(f"   {'n_estimators':<15} {'max_depth':<12} {'F1-Emerg.':<12} {'Desvio'}")
-    print("   " + "-" * 52)
+    print("[RF]>> Buscando melhores hiperparâmetros do Random Forest")
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
 
     resultados = []
     for n in N_ESTIMATORS_LISTA:
@@ -97,7 +74,6 @@ def buscar_hiperparametros(X_train, y_train):
                 "f1_media": scores.mean(),
                 "f1_desvio": scores.std()
             })
-            print(f"   {n:<15} {str(prof):<12} {scores.mean():.4f}       +- {scores.std():.4f}")
 
     df_res = pd.DataFrame(resultados)
     melhor = df_res.loc[df_res["f1_media"].idxmax()]
@@ -106,12 +82,11 @@ def buscar_hiperparametros(X_train, y_train):
     if melhor_prof is not None and not isinstance(melhor_prof, int):
         melhor_prof = int(melhor_prof)
     
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with open (f"{OUTPUT_DIR}/rf_melhor_hiperparametros.txt", "a") as f:
-        f.write(f"Melhor configuração:\n")
-        f.write(f"n_estimators : {melhor_n}\n")
-        f.write(f"max_depth    : {melhor_prof}\n")
-        f.write(f"F1-Emergência (CV): {melhor['f1_media']:.4f} +- {melhor['f1_desvio']:.4f}\n")
+    
+    print(">>>Melhor configuração encontrada:\n")
+    print(f">> n_estimators : {melhor_n}\n" )
+    print(f">> max_depth    : {melhor_prof}")
+    print(f">>F1-Emergência (CV): {melhor['f1_media']:.4f} +- {melhor['f1_desvio']:.4f}\n")
 
     # Heatmap: F1 x n_estimators x max_depth
     pivot = df_res.pivot(index="n_estimators", columns="label_depth", values="f1_media")
@@ -135,7 +110,7 @@ def buscar_hiperparametros(X_train, y_train):
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_busca_hiperparametros.png", dpi=150)
     plt.close()
-    print(f"   >> Heatmap salvo: {OUTPUT_DIR}/rf_busca_hiperparametros.png\n")
+    print(f"[RF]>> Heatmap salvo: {OUTPUT_DIR}/rf_busca_hiperparametros.png\n")
 
     return melhor_n, melhor_prof
 
@@ -154,9 +129,9 @@ def encontrar_threshold(modelo, X_test, y_test):
     idx_melhor = np.argmax(f1_scores[:-1])   # último elemento não tem threshold
     threshold_otimo = thresholds[idx_melhor]
 
-    print(f"   Threshold padrão (0.50) → F1-Emergência: "
+    print(f"   Threshold padrão (0.50) -> F1-Emergência: "
           f"{f1_score(y_test, (y_prob >= 0.50).astype(int)):.4f}")
-    print(f"   Threshold ótimo  ({threshold_otimo:.2f}) → F1-Emergência: "
+    print(f"   Threshold ótimo  ({threshold_otimo:.2f}) -> F1-Emergência: "
           f"{f1_score(y_test, (y_prob >= threshold_otimo).astype(int)):.4f}\n")
 
     return threshold_otimo, y_prob
@@ -173,7 +148,28 @@ def avaliar_rf(modelo, X_train, y_train, X_test, y_test, n, prof, threshold, y_p
     gap        = acc_treino - acc_teste
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    with open (f"{OUTPUT_DIR}/rf_avaliacao.txt", "a") as f:
+
+    json_resumo = {
+        "Modelo": "Random Forest",
+        "Acuracia_Treino": float(acc_treino),
+        "Acuracia_Teste": float(acc_teste),
+        "Gap": float(acc_treino - acc_teste),
+        "F1_Emergencia": float(f1_emerg),
+        "AUC_ROC": float(auc),
+        # Você pode adicionar as configurações do modelo se quiser
+        "Parametros": {
+            "n_estimators": n,
+            "max_depth": prof,
+            "threshold": float(threshold)
+        }
+    }
+
+    json_path = os.path.join(OUTPUT_DIR, "rf_resumo.json")
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(json_resumo, f, ensure_ascii=False, indent=4)
+
+    
+    with open (f"{OUTPUT_DIR}/rf_resumo.txt", "a") as f:
         f.write(f"Avaliação do modelo Random Forest:\n")
         f.write(f"n_estimators : {n}\n")
         f.write(f"max_depth    : {prof}\n")
@@ -181,8 +177,8 @@ def avaliar_rf(modelo, X_train, y_train, X_test, y_test, n, prof, threshold, y_p
         f.write(f"Acurácia no Treino     : {acc_treino:.4f}\n")
         f.write(f"Acurácia no Teste      : {acc_teste:.4f}\n")
         f.write(f"Gap (treino - teste)   : {gap:.4f}  "
-                + (">> sem overfitting" if gap < 0.05 else ">>  overfitting moderado") + "\n")
-        f.write(f"F1 Emergência (teste)  : {f1_emerg:.4f}   ← métrica principal\n")
+                + ("> sem overfitting" if gap < 0.05 else "> overfitting moderado") + "\n")
+        f.write(f"F1 Emergência (teste)  : {f1_emerg:.4f}   <- métrica principal\n")
         f.write(f"AUC-ROC                : {auc:.4f}\n\n")
         f.write("Relatório de Classificação:\n")
         f.write(classification_report(y_test, y_pred,
@@ -200,7 +196,7 @@ def avaliar_rf(modelo, X_train, y_train, X_test, y_test, n, prof, threshold, y_p
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_matriz_confusao.png", dpi=150)
     plt.close()
-    print(f">> Matriz de confusão        : {OUTPUT_DIR}/rf_matriz_confusao.png")
+    print(f"[RF]>> Matriz de confusão        : {OUTPUT_DIR}/rf_matriz_confusao.png")
 
     # Curva ROC
     fpr, tpr, _ = roc_curve(y_test, y_prob)
@@ -214,7 +210,7 @@ def avaliar_rf(modelo, X_train, y_train, X_test, y_test, n, prof, threshold, y_p
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_curva_roc.png", dpi=150)
     plt.close()
-    print(f">> Curva ROC                 : {OUTPUT_DIR}/rf_curva_roc.png")
+    print(f"[RF]>> Curva ROC                 : {OUTPUT_DIR}/rf_curva_roc.png")
 
     # Importância das variáveis
     importancias = pd.Series(modelo.feature_importances_, index=feature_names).sort_values(ascending=True)
@@ -228,7 +224,7 @@ def avaliar_rf(modelo, X_train, y_train, X_test, y_test, n, prof, threshold, y_p
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_importancia_variaveis.png", dpi=150)
     plt.close()
-    print(f">> Importância das variáveis : {OUTPUT_DIR}/rf_importancia_variaveis.png\n")
+    print(f"[RF]>> Importância das variáveis : {OUTPUT_DIR}/rf_importancia_variaveis.png\n")
 
     return acc_teste, f1_emerg, auc, fpr, tpr
 
@@ -281,7 +277,7 @@ def comparar_modelos(X_train, y_train, X_test, y_test,
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/comparacao_metricas.png", dpi=150)
     plt.close()
-    print(f">> Comparação de métricas    : {OUTPUT_DIR}/comparacao_metricas.png")
+    print(f"[RF]>> Comparação de métricas    : {OUTPUT_DIR}/comparacao_metricas.png")
 
     # ── Gráfico 2: ROC lado a lado
     fig, ax = plt.subplots(figsize=(7, 6))
@@ -297,7 +293,7 @@ def comparar_modelos(X_train, y_train, X_test, y_test,
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/comparacao_roc.png", dpi=150)
     plt.close()
-    print(f">> Curva ROC comparativa     : {OUTPUT_DIR}/comparacao_roc.png")
+    print(f"[RF]>> Curva ROC comparativa     : {OUTPUT_DIR}/comparacao_roc.png")
 
     # ── Gráfico 3: Matrizes de confusão lado a lado
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
@@ -314,7 +310,7 @@ def comparar_modelos(X_train, y_train, X_test, y_test,
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/comparacao_matrizes.png", dpi=150, bbox_inches="tight")
     plt.close()
-    print(f">> Matrizes comparativas     : {OUTPUT_DIR}/comparacao_matrizes.png\n")
+    print(f"[RF]>> Matrizes comparativas     : {OUTPUT_DIR}/comparacao_matrizes.png\n")
 
     # ── Resumo numérico
     fn_dt = dt_cm[1][0]   # falsos negativos DT
@@ -322,7 +318,7 @@ def comparar_modelos(X_train, y_train, X_test, y_test,
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
-    with open (f"{OUTPUT_DIR}/comparacao_resumo.txt", "a") as f:
+    with open (f"{OUTPUT_DIR}/resumo.txt", "a") as f:
         f.write(f"Resumo comparativo:\n")
         f.write(f"{'Métrica':<25} {'Árvore Dec.':<15} {'Random Forest':<15} {'Melhora'}\n")
         f.write("-" * 65 + "\n")
@@ -332,10 +328,10 @@ def comparar_modelos(X_train, y_train, X_test, y_test,
             ("AUC-ROC",        dt_auc,  rf_auc),
         ]:
             delta = vrf - vdt
-            sinal = "▲" if delta > 0 else "▼"
+            sinal = "^" if delta > 0 else "v"
             f.write(f"{nome:<25} {vdt:<15.4f} {vrf:<15.4f} {sinal} {abs(delta):.4f}\n")
         f.write(f"{'Falsos Negativos':<25} {fn_dt:<15} {fn_rf:<15} "
-                + (f"▼ {fn_dt - fn_rf} emergências a menos perdidas" if fn_rf < fn_dt else f"▲ {fn_rf - fn_dt}\n"))
+                + (f"v {fn_dt - fn_rf} emergências a menos perdidas" if fn_rf < fn_dt else f"^ {fn_rf - fn_dt}\n"))
 
 
 if __name__ == "__main__":
@@ -343,7 +339,7 @@ if __name__ == "__main__":
     print("Random Forest + Comparação com DT")
     print("=" * 57 + "\n")
 
-    train, test = carregar_dados()
+    train, test = carregar_dados(TRAIN_PATH, TEST_PATH)
     X_train, y_train = separar_xy(train)
     X_test,  y_test  = separar_xy(test)
 
@@ -351,9 +347,6 @@ if __name__ == "__main__":
     melhor_n, melhor_prof = buscar_hiperparametros(X_train, y_train)
 
     # 2. Treina modelo final
-    print("=" * 57)
-    print(f"  TREINAMENTO FINAL  (n={melhor_n}, max_depth={melhor_prof})")
-    print("=" * 57 + "\n")
     rf = RandomForestClassifier(
         n_estimators=melhor_n,
         max_depth=melhor_prof,
@@ -364,7 +357,7 @@ if __name__ == "__main__":
     rf.fit(X_train, y_train)
 
     # 3. Threshold ótimo
-    print(">> Ajustando threshold para minimizar falsos negativos...")
+    print("[RF]>> Ajustando threshold para minimizar falsos negativos...")
     threshold_otimo, y_prob = encontrar_threshold(rf, X_test, y_test)
 
     # 4. Avaliação completa

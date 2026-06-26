@@ -1,4 +1,0 @@
-Melhor configuração:
-Critério    : entropy
-Profundidade: 4
-F1-Emergência (CV): 0.7984 ± 0.0230

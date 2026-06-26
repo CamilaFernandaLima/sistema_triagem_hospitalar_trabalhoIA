@@ -1,0 +1,12 @@
+{
+    "Modelo": " K-Nearest Neighbors",
+    "Acuracia_Treino": 0.7305034550839091,
+    "Acuracia_Teste": 0.6771653543307087,
+    "Gap": 0.053338100753200446,
+    "F1_Emergencia": 0.7484662576687117,
+    "AUC_ROC": 0.6721024858541547,
+    "Parametros": {
+        "K": 15,
+        "Metrica": "euclidean"
+    }
+}

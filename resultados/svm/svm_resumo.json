@@ -1,0 +1,14 @@
+{
+    "Modelo": "SVM",
+    "Acuracia_Treino": 0.7996051332675223,
+    "Acuracia_Teste": 0.7165354330708661,
+    "Gap": 0.08306970019665616,
+    "F1_Emergencia": 0.788235294117647,
+    "AUC_ROC": 0.7593616886006739,
+    "Parametros": {
+        "kernel": "rbf",
+        "C": 1.0,
+        "gamma": "scale",
+        "threshold": 0.3324110144128469
+    }
+}

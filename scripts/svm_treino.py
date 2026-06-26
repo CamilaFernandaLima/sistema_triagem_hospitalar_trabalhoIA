@@ -2,7 +2,7 @@
  — Script 4: SVM (Support Vector Machine)
 ======================================================
 Dataset: data/data_split/train.csv e test.csv (gerados por split.py)
-Target : KTAS_target_binario  →  1 = Emergência | 0 = Não-Emergência
+Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 
 Etapas:
   1. Busca de hiperparâmetros (kernel x C x gamma) via CV 5-fold
@@ -29,6 +29,7 @@ from sklearn.model_selection import cross_val_score, StratifiedKFold
 import warnings
 warnings.filterwarnings("ignore")
 import os
+import json
 
 # ──────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO
@@ -55,12 +56,12 @@ def carregar_dados():
     for path in [TRAIN_PATH, TEST_PATH]:
         if not os.path.exists(path):
             raise FileNotFoundError(
-                f"\n❌ '{path}' não encontrado.\n"
+                f"\n '{path}' não encontrado.\n"
                 "Execute split.py antes deste script."
             )
     train = pd.read_csv(TRAIN_PATH)
     test  = pd.read_csv(TEST_PATH)
-    print(f">> Treino: {train.shape}   Teste: {test.shape}\n")
+    print(f"[SVM]>> Treino: {train.shape}   Teste: {test.shape}\n")
     return train, test
 
 
@@ -75,7 +76,7 @@ def buscar_hiperparametros(X_train, y_train):
     SVM exige StandardScaler — incluído no Pipeline para evitar data leakage.
     Métrica: F1-Emergência.
     """
-    print(">> Buscando melhores hiperparâmetros do SVM")
+    print("[SVM]>> Buscando melhores hiperparâmetros do SVM")
     print("   (5-fold CV, métrica: F1-Emergência)\n")
     print(f"   {'Kernel':<10} {'C':<8} {'Gamma':<10} {'F1-Emerg.':<12} {'Desvio'}")
     print("   " + "-" * 52)
@@ -144,9 +145,9 @@ def encontrar_threshold(pipeline, X_test, y_test):
     f1s = 2 * (precisoes * recalls) / (precisoes + recalls + 1e-9)
     idx = np.argmax(f1s[:-1])
     thr = thresholds[idx]
-    print(f"   Threshold padrão (0.50) → F1-Emergência: "
+    print(f"   Threshold padrão (0.50) -> F1-Emergência: "
           f"{f1_score(y_test, (y_prob >= 0.50).astype(int)):.4f}")
-    print(f"   Threshold ótimo  ({thr:.2f}) → F1-Emergência: "
+    print(f"   Threshold ótimo  ({thr:.2f}) -> F1-Emergência: "
           f"{f1_score(y_test, (y_prob >= thr).astype(int)):.4f}\n")
     return thr, y_prob
 
@@ -161,11 +162,32 @@ def avaliar(pipeline, X_train, y_train, X_test, y_test, kernel, C, gamma, thr, y
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
 
+    json_resumo = {
+        "Modelo": "SVM",
+        "Acuracia_Treino": float(acc_treino),
+        "Acuracia_Teste": float(acc_teste),
+        "Gap": float(acc_treino - acc_teste),
+        "F1_Emergencia": float(f1_emerg),
+        "AUC_ROC": float(auc),
+        # Você pode adicionar as configurações do modelo se quiser
+        "Parametros": {
+            "kernel": kernel,
+            "C": C,
+            "gamma": gamma,
+            "threshold": float(thr)
+        }
+    }
+
+    json_path = os.path.join(OUTPUT_DIR, "svm_resumo.json")
+    with open(json_path, 'w', encoding='utf-8') as f:
+        json.dump(json_resumo, f, ensure_ascii=False, indent=4)
+
+
     with open (f"{OUTPUT_DIR}/svm_metricas.txt", "a") as f:
         f.write(f"Acurácia no Treino     : {acc_treino:.4f}\n")
         f.write(f"Acurácia no Teste      : {acc_teste:.4f}\n")
         f.write(f"Gap (treino - teste)   : {gap:.4f}  "
-                + (">> sem overfitting" if gap < 0.05 else ">>  overfitting moderado") + "\n")
+                + ("> sem overfitting" if gap < 0.05 else ">  overfitting moderado") + "\n")
         f.write(f"F1 Emergência (teste)  : {f1_emerg:.4f}   <- métrica principal\n")
         f.write(f"AUC-ROC                : {auc:.4f}\n\n")
         f.write("Relatório de Classificação:\n")
@@ -183,7 +205,7 @@ def avaliar(pipeline, X_train, y_train, X_test, y_test, kernel, C, gamma, thr, y
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/svm_matriz_confusao.png", dpi=150)
     plt.close()
-    print(f">> Matriz de confusão        : {OUTPUT_DIR}/svm_matriz_confusao.png")
+    print(f"[SVM]>> Matriz de confusão        : {OUTPUT_DIR}/svm_matriz_confusao.png")
 
     # Curva ROC
     fpr, tpr, _ = roc_curve(y_test, y_prob)
@@ -197,7 +219,7 @@ def avaliar(pipeline, X_train, y_train, X_test, y_test, kernel, C, gamma, thr, y
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/svm_curva_roc.png", dpi=150)
     plt.close()
-    print(f">> Curva ROC                 : {OUTPUT_DIR}/svm_curva_roc.png\n")
+    print(f"[SVM]>> Curva ROC                 : {OUTPUT_DIR}/svm_curva_roc.png\n")
 
     return acc_teste, f1_emerg, auc, fpr, tpr, cm
 
@@ -213,10 +235,6 @@ if __name__ == "__main__":
 
     mk, mC, mg, _ = buscar_hiperparametros(X_train, y_train)
 
-    print("=" * 57)
-    print(f"  TREINAMENTO FINAL  (kernel={mk}, C={mC}, gamma={mg})")
-    print("=" * 57 + "\n")
-
     pipeline = Pipeline([
         ("scaler", StandardScaler()),
         ("svm", SVC(
@@ -228,9 +246,9 @@ if __name__ == "__main__":
     ])
     pipeline.fit(X_train, y_train)
 
-    print(">> Ajustando threshold para minimizar falsos negativos...")
+    print("[SVM]>> Ajustando threshold para minimizar falsos negativos...")
     thr, y_prob = encontrar_threshold(pipeline, X_test, y_test)
 
     avaliar(pipeline, X_train, y_train, X_test, y_test, mk, mC, mg, thr, y_prob)
 
-    print(f">> Concluído! Resultados salvos em '{OUTPUT_DIR}/'")
+    print(f"[SVM]>> Concluído! Resultados salvos em '{OUTPUT_DIR}/'")

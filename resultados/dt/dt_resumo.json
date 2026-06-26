@@ -1,0 +1,12 @@
+{
+    "Modelo": " \u00c1rvore de Decis\u00e3o",
+    "Acuracia_Treino": 0.7620927936821322,
+    "Acuracia_Teste": 0.6338582677165354,
+    "Gap": 0.1282345259655968,
+    "F1_Emergencia": 0.6759581881533101,
+    "AUC_ROC": 0.6719435437726493,
+    "Parametros": {
+        "profundidade": 4,
+        "criterio": "entropy"
+    }
+}

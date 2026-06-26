@@ -1,0 +1,12 @@
+{
+    "Modelo": "Naive Bayes",
+    "Acuracia_Treino": 0.5883514313919053,
+    "Acuracia_Teste": 0.6614173228346457,
+    "Gap": -0.07306589144274045,
+    "F1_Emergencia": 0.7207792207792207,
+    "AUC_ROC": 0.6979464683069491,
+    "Parametros": {
+        "Modelo": "GaussianNB",
+        "threshold": 0.15
+    }
+}

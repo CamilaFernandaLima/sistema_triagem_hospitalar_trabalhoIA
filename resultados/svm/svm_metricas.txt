@@ -1,6 +1,6 @@
 Acurácia no Treino     : 0.7996
 Acurácia no Teste      : 0.7165
-Gap (treino - teste)   : 0.0831  >>  overfitting moderado
+Gap (treino - teste)   : 0.0831  >  overfitting moderado
 F1 Emergência (teste)  : 0.7882   <- métrica principal
 AUC-ROC                : 0.7594
 

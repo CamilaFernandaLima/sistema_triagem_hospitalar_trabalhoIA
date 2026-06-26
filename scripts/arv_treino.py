@@ -23,42 +23,21 @@ from sklearn.model_selection import cross_val_score
 import os
 import warnings
 warnings.filterwarnings("ignore")
+import json
+from util import carregar_dados, separar_xy, TARGET_COLUMN, FEATURES
 
 
 # CONFIGURAÇÃO
 
 TRAIN_PATH    = "data/data_split/train.csv"
 TEST_PATH     = "data/data_split/test.csv"
-TARGET_COLUMN = "KTAS_target_binario"
 OUTPUT_DIR    = "resultados/dt"
+RESUMO_TXT    = f"{OUTPUT_DIR}/dt_resumo.txt"
 RANDOM_STATE  = 42
-
-FEATURES = [
-    "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",
-    "SBP", "DBP", "HR", "RR", "BT", "Saturation"
-]
 
 CRITERIOS    = ["gini", "entropy", "log_loss"]
 PROFUNDIDADES = [2, 3, 4, 5, 6, 7, 8, 10, None]
 
-
-
-def carregar_dados():
-    for path in [TRAIN_PATH, TEST_PATH]:
-        if not os.path.exists(path):
-            raise FileNotFoundError(
-                f"\n>>'{path}' não encontrado.\n"
-                "Execute split.py antes deste script."
-            )
-    train = pd.read_csv(TRAIN_PATH)
-    test  = pd.read_csv(TEST_PATH)
-    print(f">>Treino: {train.shape}   Teste: {test.shape}\n")
-    return train, test
-
-
-def separar_xy(df):
-    features = [c for c in FEATURES if c in df.columns]
-    return df[features], df[TARGET_COLUMN]
 
 
 def buscar_melhor_combinacao(X_train, y_train):
@@ -66,11 +45,17 @@ def buscar_melhor_combinacao(X_train, y_train):
     Testa todos os critérios x profundidades via CV 5-fold.
     Métrica de seleção: F1 da classe Emergência (1) — evitar falsos negativos.
     """
-    print(">>Buscando melhor critério x profundidade (5-fold CV, métrica: F1-Emergência)...\n")
-    print(f"   {'Critério':<12} {'Profund.':<12} {'F1-Emerg.':<12} {'Desvio'}")
-    print("   " + "-" * 48)
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
+
+    print("[DT]>>[DT]Buscando melhor critério x profundidade (5-fold CV, métrica: F1-Emergência)...\n")
+    print("Árvore de Decisão (anti-overfitting)\n")
+    print("Critérios: gini, entropy, log_loss\n")
+    print("Métrica de seleção: F1 da classe Emergência (1)\n\n")
+    print(f"{'Critério':<12} {'Profund.':<12} {'F1-Emerg.':<12} {'Desvio'}\n")
+    print("-" * 48 + "\n")
+
+    
     resultados = []
 
     for criterio in CRITERIOS:
@@ -104,11 +89,12 @@ def buscar_melhor_combinacao(X_train, y_train):
     if melhor_prof is not None and not isinstance(melhor_prof, int):
         melhor_prof = int(melhor_prof)
 
-    with open (f"{OUTPUT_DIR}/dt_melhor_hiperparametros.txt", "a") as f:
+    with open (f"{RESUMO_TXT}", "a") as f:
         f.write(f"Melhor configuração:\n")
         f.write(f"Critério    : {melhor_criterio}\n")
         f.write(f"Profundidade: {melhor_prof}\n")
         f.write(f"F1-Emergência (CV): {melhor['f1_media']:.4f} ± {melhor['f1_desvio']:.4f}\n")
+        f.write(f"\n")
 
     # >>>> Gráfico comparativo: F1 x profundidade por critério
     cores = {"gini": "#1976D2", "entropy": "#E53935", "log_loss": "#43A047"}
@@ -134,7 +120,7 @@ def buscar_melhor_combinacao(X_train, y_train):
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_busca_criterio_profundidade.png", dpi=150)
     plt.close()
-    print(f">>Gráfico comparativo salvo: {OUTPUT_DIR}/dt_busca_criterio_profundidade.png\n")
+    print(f"[DT]>>Gráfico comparativo salvo: {OUTPUT_DIR}/dt_busca_criterio_profundidade.png\n")
 
     return melhor_criterio, melhor_prof, df_res
 
@@ -161,7 +147,27 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     auc        = roc_auc_score(y_test, y_prob)
     gap        = acc_treino - acc_teste
 
-    with open (f"{OUTPUT_DIR}/dt_metricas.txt", "a", encoding="utf-8") as f:
+    json_resumo = {
+        "Modelo": " Árvore de Decisão",
+        "Acuracia_Treino": float(acc_treino),
+        "Acuracia_Teste":  float(acc_teste),
+        "Gap":  float(gap),
+        "F1_Emergencia": float(f1_emerg),
+        "AUC_ROC": float(auc),
+        "Parametros": {
+            "profundidade": prof,
+            "criterio": criterio
+        }
+    }
+
+    json_path = f"{OUTPUT_DIR}/dt_resumo.json"
+    with open(json_path, "w") as f:
+        json.dump(json_resumo, f, indent=4)
+    print(f"[DT]>>Métricas salvas em JSON: {json_path}\n")
+
+
+    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    with open (f"{RESUMO_TXT}", "a", encoding="utf-8") as f:
         f.write(f"Critério: {criterio}\n")
         f.write(f"Profundidade: {prof}\n")
         f.write(f"Acurácia no Treino     : {acc_treino:.4f}\n")
@@ -169,14 +175,14 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         f.write(f"Gap (treino - teste)   : {gap:.4f} " + ("sem overfitting significativo" if gap < 0.05 else "overfitting moderado"))
         f.write(f"F1 Emergência (teste)  : {f1_emerg:.4f}\n")
         f.write(f"AUC-ROC                : {auc:.4f}\n")
-    with  open (f"{OUTPUT_DIR}/dt_relatorio_classificacao.txt", "a", encoding="utf-8") as f:
         f.write(f"Critério: {criterio}\n")
         f.write(f"Profundidade: {prof}\n\n")
         f.write("Relatório de Classificação:\n")
         f.write(classification_report(y_test, y_pred,
               target_names=["Não-Emergência (0)", "Emergência (1)"]))
+        
 
-    os.makedirs(OUTPUT_DIR, exist_ok=True)
+    
     feature_names = X_train.columns.tolist()
 
     # >>>> Matriz de confusão
@@ -188,7 +194,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_matriz_confusao.png", dpi=150)
     plt.close()
-    print(f">>Matriz de confusão        : {OUTPUT_DIR}/dt_matriz_confusao.png")
+    print(f"[DT]>>Matriz de confusão        : {OUTPUT_DIR}/dt_matriz_confusao.png")
 
     # >>>> Curva ROC
     fpr, tpr, _ = roc_curve(y_test, y_prob)
@@ -202,7 +208,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_curva_roc.png", dpi=150)
     plt.close()
-    print(f">>Curva ROC                 : {OUTPUT_DIR}/dt_curva_roc.png")
+    print(f"[DT]>>Curva ROC                 : {OUTPUT_DIR}/dt_curva_roc.png")
 
     # >>>> Importância das variáveis
     importancias = pd.Series(modelo.feature_importances_, index=feature_names).sort_values(ascending=True)
@@ -216,7 +222,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_importancia_variaveis.png", dpi=150)
     plt.close()
-    print(f">>Importância das variáveis : {OUTPUT_DIR}/dt_importancia_variaveis.png")
+    print(f"[DT]>>Importância das variáveis : {OUTPUT_DIR}/dt_importancia_variaveis.png")
 
     # >>>> Visualização da árvore e regras (só se profundidade ≤ 5)
     prof_num = prof if prof is not None else 999
@@ -229,13 +235,14 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         plt.tight_layout()
         plt.savefig(f"{OUTPUT_DIR}/dt_arvore.png", dpi=110)
         plt.close()
-        print(f">>Visualização da árvore    : {OUTPUT_DIR}/dt_arvore.png")
+        print(f"[DT]>>Visualização da árvore    : {OUTPUT_DIR}/dt_arvore.png")
 
         regras = export_text(modelo, feature_names=feature_names)
         with open(f"{OUTPUT_DIR}/dt_regras.txt", "a", encoding="utf-8") as f:
             f.write(f"Critério: {criterio}  |  max_depth: {prof}\n\n")
             f.write(regras)
-        print(f">>Regras em texto           : {OUTPUT_DIR}/dt_regras.txt")
+
+        print(f"[DT]>>Regras em texto           : {OUTPUT_DIR}/dt_regras.txt")
     else:
         print("   (Árvore muito profunda para visualizar — omitido)")
 
@@ -248,7 +255,7 @@ if __name__ == "__main__":
     print("  Seleção: F1-Emergência  |  Critérios: gini, entropy, log_loss")
     print("=" * 57 + "\n")
 
-    train, test = carregar_dados()
+    train, test = carregar_dados(TRAIN_PATH,TEST_PATH)
     X_train, y_train = separar_xy(train)
     X_test,  y_test  = separar_xy(test)
 
@@ -258,7 +265,7 @@ if __name__ == "__main__":
         X_train, y_train, X_test, y_test, melhor_criterio, melhor_prof
     )
 
-    with open(f"{OUTPUT_DIR}/dt_final.txt ", "a", encoding="utf-8") as f:
+    with open(f"{RESUMO_TXT}", "a", encoding="utf-8") as f:
         f.write(f"Critério escolhido    : {melhor_criterio}\n")
         f.write(f"Profundidade escolhida: {melhor_prof}\n")
         f.write(f"F1-Emergência (teste) : {f1_emerg:.4f}\n")

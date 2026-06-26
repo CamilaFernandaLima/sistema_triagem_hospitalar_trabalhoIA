@@ -13,114 +13,129 @@ DATASET    := data/dataset_triagem_limpo.csv
 
 TRAIN_FILE := data/data_split/train.csv
 TEST_FILE  := data/data_split/test.csv
+TRAIN_NORM := data/data_split/train_normalized.csv
+TEST_NORM  := data/data_split/test_normalized.csv
 
 DT_RESULT  := resultados/dt
 RF_RESULT  := resultados/rf
 SVM_RESULT := resultados/svm
+NB_RESULT  := resultados/nb
+KNN_RESULT := resultados/knn
+COMP_RESULT:= resultados/comparacao
 
-.PHONY: all help install limpar_dados split decision_tree random_forest svm clean force
+.PHONY: all help install limpar_dados split modelos decision_tree random_forest svm naive_bayes knn comparar clean force
 
-# ── Pipeline completo ────────────────────────────────────────
-all: install limpar_dados split modelos
+# ── Pipeline Completo ────────────────────────────────────────
+all: install limpar_dados split modelos comparar
 	@echo.
 	@echo ==============================================
-	@echo Pipeline concluido com sucesso!
+	@echo Pipeline completo concluido com sucesso!
+	@echo Todos os modelos foram treinados e comparados.
 	@echo ==============================================
 
-# ── Treinamento de modelos ───────────────────────────────────
-modelos: decision_tree random_forest svm
+# ── Treinamento de todos os modelos ──────────────────────────
+modelos: decision_tree random_forest svm naive_bayes knn
 	@echo.
 	@echo ==============================================
-	@echo Modelos treinados com sucesso!
+	@echo Todos os 5 modelos foram treinados com sucesso!
 	@echo ==============================================
 
-# ── Ajuda ────────────────────────────────────────────────────
+# ── Ajuda / Comandos disponíveis ─────────────────────────────
 help:
 	@echo.
 	@echo Alvos disponiveis:
-	@echo   make
-	@echo   make install
-	@echo   make limpar_dados
-	@echo   make split
-	@echo   make decision_tree
-	@echo   make random_forest
-	@echo   make resultados
-	@echo   make clean
-	@echo.
+	@echo   make install       - Instala dependencias no venv
+	@echo   make limpar_dados  - Executa o script de limpeza de dados
+	@echo   make split         - Divide os dados em treino e teste
+	@echo   make decision_tree - Treina o modelo de Arvore de Decisao
+	@echo   make random_forest - Treina o modelo de Random Forest
+	@echo   make svm           - Treina o modelo SVM
+	@echo   make naive_bayes   - Treina o modelo Naive Bayes
+	@echo   make knn           - Treina o modelo KNN
+	@echo   make modelos       - Treina todos os 5 modelos sequencialmente
+	@echo   make comparar      - Gera tabelas e graficos comparativos
+	@echo   make all           - Executa o pipeline completo (tudo acima)
+	@echo   make clean         - Remove os resultados e dados gerados
+	@echo   make force         - Forca o rebuild completo do projeto
 
-# ── Ambiente virtual ─────────────────────────────────────────
+# ── Preparação do Ambiente e Dados ───────────────────────────
 install: $(STAMP)
 
-$(STAMP): scripts/requirements.txt
-	@echo [INFO] Criando ambiente virtual...
-	@if not exist "$(VENV)" python -m venv $(VENV)
-
-	@echo [INFO] Atualizando pip...
+$(STAMP): requirements.txt
+	@echo [INFO] Criando ambiente virtual e instalando dependencias...
+	@if not exist $(VENV) python -m venv $(VENV)
 	@$(PIP) install --upgrade pip
+	@$(PIP) install -r requirements.txt
+	@echo venv_ready > $(STAMP)
+	@echo [OK] Ambiente preparado.
 
-	@echo [INFO] Instalando dependencias...
-	@$(PIP) install -r scripts/requirements.txt
-
-	@echo ok > $(STAMP)
-	@echo [OK] Ambiente pronto.
-
-# ── Limpeza de dados ─────────────────────────────────────────
 limpar_dados: $(DATASET)
 
 $(DATASET): $(DATA_RAW) scripts/limpeza_dados.py $(STAMP)
-	@echo [INFO] Executando limpeza dos dados...
+	@echo [INFO] Executando limpeza e pre-processamento dos dados...
 	@$(PYTHON) scripts/limpeza_dados.py
-	@echo [OK] Dataset gerado.
+	@echo [OK] Dados limpos prontos.
 
-# ── Train/Test Split ─────────────────────────────────────────
-split: $(TRAIN_FILE)
+split: $(TRAIN_FILE) $(TEST_FILE)
 
 $(TRAIN_FILE) $(TEST_FILE): $(DATASET) scripts/split.py $(STAMP)
-	@echo [INFO] Dividindo treino/teste...
+	@echo [INFO] Dividindo treino/teste e gerando normalizacoes...
 	@$(PYTHON) scripts/split.py
-	@echo [OK] Arquivos de split gerados.
+	@echo [OK] Arquivos de split gerados (originais e normalizados).
 
-# ── Decision Tree ────────────────────────────────────────────
+# ── Modelos Individuais ──────────────────────────────────────
 decision_tree: $(DT_RESULT)
 
 $(DT_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/arv_treino.py $(STAMP)
 	@echo [INFO] Treinando Decision Tree...
 	@$(PYTHON) scripts/arv_treino.py
-	@echo [OK] Resultados salvos.
+	@echo [OK] Resultados de Decision Tree salvos.
 
-# ── Random Forest ────────────────────────────────────────────
 random_forest: $(RF_RESULT)
 
 $(RF_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/random_treino.py $(STAMP)
 	@echo [INFO] Treinando Random Forest...
 	@$(PYTHON) scripts/random_treino.py
-	@echo [OK] Resultados salvos.
+	@echo [OK] Resultados de Random Forest salvos.
 
-# -- SVM ─────────────────────────────────────────────────────────
 svm: $(SVM_RESULT)
+
 $(SVM_RESULT): $(TRAIN_FILE) $(TEST_FILE) scripts/svm_treino.py $(STAMP)
 	@echo [INFO] Treinando SVM...
 	@$(PYTHON) scripts/svm_treino.py
-	@echo [OK] Resultados salvos.
+	@echo [OK] Resultados de SVM salvos.
 
-# ── Forçar rebuild ───────────────────────────────────────────
-force:
-	@echo Forcando reexecucao...
-	@del /Q $(DATASET) 2>nul
-	@del /Q $(TRAIN_FILE) 2>nul
-	@del /Q $(TEST_FILE) 2>nul
-	@del /Q $(DT_RESULT) 2>nul
-	@del /Q $(RF_RESULT) 2>nul
+naive_bayes: $(NB_RESULT)
+
+$(NB_RESULT): $(TRAIN_NORM) $(TEST_NORM) scripts/nb_treino.py $(STAMP)
+	@echo [INFO] Treinando Naive Bayes...
+	@$(PYTHON) scripts/nb_treino.py
+	@echo [OK] Resultados de Naive Bayes salvos.
+
+knn: $(KNN_RESULT)
+
+$(KNN_RESULT): $(TRAIN_NORM) $(TEST_NORM) scripts/knn_treino.py $(STAMP)
+	@echo [INFO] Treinando KNN...
+	@$(PYTHON) scripts/knn_treino.pys
+	@echo [OK] Resultados de KNN salvos.
+
+# ── Consolidação e Comparação ────────────────────────────────
+comparar: $(COMP_RESULT)
+
+$(COMP_RESULT): $(DT_RESULT) $(RF_RESULT) $(SVM_RESULT) $(NB_RESULT) $(KNN_RESULT) scripts/compara.py $(STAMP)
+	@echo [INFO] Executando script de comparacao de modelos...
+	@$(PYTHON) scripts/compara.py
+	@echo [OK] Graficos e tabelas comparativas gerados em '$(COMP_RESULT)'.
 
 # ── Limpeza ──────────────────────────────────────────────────
 clean:
-	@echo Removendo arquivos gerados...
-
+	@echo [INFO] Limpando arquivos gerados...
+	@if exist resultados rmdir /S /Q resultados
+	@if exist data\\data_split rmdir /S /Q data\\data_split
 	@if exist $(DATASET) del /Q $(DATASET)
-	@if exist $(TRAIN_FILE) del /Q $(TRAIN_FILE)
-	@if exist $(TEST_FILE) del /Q $(TEST_FILE)
-	@if exist $(DT_RESULT) rmdir /S /Q $(DT_RESULT)
-	@if exist $(RF_RESULT) rmdir /S /Q $(RF_RESULT)
-	@if exist $(SVM_RESULT) rmdir /S /Q $(SVM_RESULT)
-
 	@echo [OK] Limpeza concluida.
+
+force: clean
+	@echo [INFO] Forcando reexecucao total...
+	@if exist $(STAMP) del /Q $(STAMP)
+	@$(MAKE) all
