@@ -63,7 +63,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     modelo.fit(X_train, y_train)
 
     y_prob = modelo.predict_proba(X_test)[:, 1]
-    y_pred = (y_prob >= 0.20).astype(int)
+    y_pred = (y_prob >= 0.15).astype(int)
 
     # ── Métricas principais ────────────────────────────────────
     acc_treino = accuracy_score(y_train, modelo.predict(X_train))

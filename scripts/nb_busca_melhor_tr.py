@@ -21,17 +21,17 @@ warnings.filterwarnings("ignore")
 # ──────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO
 # ──────────────────────────────────────────────────────────────
-TRAIN_PATH    = "data/data_split/train_normalized.csv"
-TEST_PATH     = "data/data_split/test_normalized.csv"
+TRAIN_PATH = "data/data_split/train_normalized.csv"
+TEST_PATH = "data/data_split/test_normalized.csv"
 TARGET_COLUMN = "KTAS_target_binario"
-OUTPUT_DIR    = "resultados/nb"
+OUTPUT_DIR = "resultados/nb"
 
 FEATURES = [
     "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",
     "SBP", "DBP", "HR", "RR", "BT", "Saturation"
 ]
 
-THRESHOLDS = np.arange(0.20, 0.61, 0.05)
+THRESHOLDS = np.arange(0.10, 0.61, 0.05)
 
 def carregar_dados():
     for path in [TRAIN_PATH, TEST_PATH]:
