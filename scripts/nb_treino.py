@@ -55,6 +55,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
     f1_emerg = f1_score(y_test, y_pred, pos_label=1)
     auc = roc_auc_score(y_test, y_prob)
     gap = acc_treino - acc_teste
+    recall_emerg = recall_score(y_test, y_pred, pos_label=1)
     
     fim_treino=time.time()
 
@@ -76,6 +77,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
         "Acuracia_Teste":  float(acc_teste),
         "Gap":  float(gap),
         "F1_Emergencia": float(f1_emerg),
+        "Recall_Emergencia": float(recall_emerg),
         "AUC_ROC": float(auc),
         "tempo_treino": float(tempo_total),
         "Parametros": {

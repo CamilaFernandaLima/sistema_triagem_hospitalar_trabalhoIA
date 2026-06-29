@@ -1,4 +1,4 @@
-=== RELATÓRIO DE CLASSIFICAÇÃO — KNN ===
+=== RELATÓRIO DE CLASSIFICAÇÃO - KNN ===
 
 K=15  |  métrica=euclidean
 

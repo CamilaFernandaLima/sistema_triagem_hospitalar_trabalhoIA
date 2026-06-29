@@ -1,4 +1,4 @@
-=== BUSCA DO MELHOR THRESHOLD — NAIVE BAYES ===
+=== BUSCA DO MELHOR THRESHOLD - NAIVE BAYES ===
 
 Threshold    F1-Emerg.      Recall       Precisão     Acur. Teste
 --------------------------------------------------------------

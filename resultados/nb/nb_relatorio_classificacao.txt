@@ -1,4 +1,4 @@
-=== RELATÓRIO DE CLASSIFICAÇÃO — NAIVE BAYES ===
+=== RELATÓRIO DE CLASSIFICAÇÃO - NAIVE BAYES ===
 
 Modelo: GaussianNB
 

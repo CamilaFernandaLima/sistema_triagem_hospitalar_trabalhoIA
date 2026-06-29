@@ -23,7 +23,7 @@ from sklearn.metrics import (
     classification_report, confusion_matrix,
     ConfusionMatrixDisplay, accuracy_score,
     roc_auc_score, roc_curve, f1_score,
-    precision_recall_curve
+    precision_recall_curve, recall_score
 )
 from sklearn.model_selection import cross_val_score, StratifiedKFold
 import warnings
@@ -157,7 +157,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     f1_emerg   = f1_score(y_test, y_pred, pos_label=1)
     auc        = roc_auc_score(y_test, y_prob)
     gap        = acc_treino - acc_teste
-
+    recall_emerg = recall_score(y_test, y_pred, pos_label=1)
     fim_treino = time.time()
     tempo_total = fim_treino - inicio_treino
 
@@ -169,6 +169,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
         "Acuracia_Teste": float(acc_teste),
         "Gap": float(acc_treino - acc_teste),
         "F1_Emergencia": float(f1_emerg),
+        "Recall_Emergencia": float(recall_emerg),
         "AUC_ROC": float(auc),
         "tempo_treino": float(tempo_total),
         "Parametros": {

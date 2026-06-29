@@ -1,4 +1,4 @@
-=== BUSCA DO MELHOR K — KNN ===
+=== BUSCA DO MELHOR K - KNN ===
 
 K      F1-Emerg.      Acur. Treino     Acur. Teste    Gap
 ----------------------------------------------------------

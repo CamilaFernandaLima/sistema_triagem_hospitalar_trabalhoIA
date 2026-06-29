@@ -1,4 +1,4 @@
-=== MÉTRICAS — KNN ===
+=== MÉTRICAS - KNN ===
 
 K : 15
 Métrica de distância : euclidean

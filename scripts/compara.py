@@ -180,7 +180,16 @@ if __name__ == "__main__":
         cor="#E53935"
     )
 
-    # Gráfico 4: Tempo de Treino vs F1-Score (Eficiência)
+    # Gráfico 4: Recall (Emergência)
+    plotar_comparacao_barras(
+        df_resultados, 
+        metrica="Recall_Emergencia", 
+        titulo="Comparação: Recall (Classe Emergência)", 
+        arquivo_saida=os.path.join(OUTPUT_DIR, "comp_recall.png"),
+        cor="#2E7D32"
+    )
+
+    # Gráfico 5: Tempo de Treino vs F1-Score (Eficiência)
     if "tempo_treino" in df_resultados.columns:
         plotar_tempo_vs_f1(
             df_resultados,

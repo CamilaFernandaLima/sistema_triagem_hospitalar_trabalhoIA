@@ -25,3 +25,30 @@ Critério escolhido    : entropy
 Profundidade escolhida: 4
 F1-Emergência (teste) : 0.6760
 AUC-ROC               : 0.6719
+Melhor configura��o:
+Crit�rio    : entropy
+Profundidade: 4
+F1-Emerg�ncia (CV): 0.7984 � 0.0230
+
+Critério: entropy
+Profundidade: 4
+Acurácia no Treino     : 0.7621
+Acurácia no Teste      : 0.6339
+Gap (treino - teste)   : 0.1282 overfitting moderadoF1 Emergência (teste)  : 0.6760
+AUC-ROC                : 0.6719
+Critério: entropy
+Profundidade: 4
+
+Relatório de Classificação:
+                    precision    recall  f1-score   support
+
+Não-Emergência (0)       0.56      0.60      0.58       107
+    Emergência (1)       0.69      0.66      0.68       147
+
+          accuracy                           0.63       254
+         macro avg       0.63      0.63      0.63       254
+      weighted avg       0.64      0.63      0.64       254
+Critério escolhido    : entropy
+Profundidade escolhida: 4
+F1-Emergência (teste) : 0.6760
+AUC-ROC               : 0.6719

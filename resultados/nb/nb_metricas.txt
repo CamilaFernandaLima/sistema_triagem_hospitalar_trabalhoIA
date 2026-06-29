@@ -1,4 +1,4 @@
-=== MÉTRICAS — NAIVE BAYES ===
+=== MÉTRICAS - NAIVE BAYES ===
 
 Modelo: GaussianNB
 

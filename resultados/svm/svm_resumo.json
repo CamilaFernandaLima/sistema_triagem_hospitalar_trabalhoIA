@@ -4,12 +4,13 @@
     "Acuracia_Teste": 0.7165354330708661,
     "Gap": 0.08306970019665616,
     "F1_Emergencia": 0.788235294117647,
+    "Recall_Emergencia": 0.9115646258503401,
     "AUC_ROC": 0.7593616886006739,
-    "tempo_treino": 3.1798653602600098,
+    "tempo_treino": 0.24722051620483398,
     "Parametros": {
         "kernel": "rbf",
         "C": 1.0,
         "gamma": "scale",
-        "threshold": 0.3324110144128469
+        "threshold": 0.33241101441284704
     }
 }
