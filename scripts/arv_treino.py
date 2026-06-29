@@ -4,7 +4,7 @@
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 Tarefa : Testar critérios (gini, entropy, log_loss) x profundidades via
          validação cruzada, escolher a melhor combinação pelo F1 da classe
-         Emergência (classe crítica — minimizar falsos negativos).
+         Emergência (classe crítica - minimizar falsos negativos).
 """
 
 import pandas as pd
@@ -44,7 +44,7 @@ PROFUNDIDADES = [2, 3, 4, 5, 6, 7, 8, 10, None]
 def buscar_melhor_combinacao(X_train, y_train):
     """
     Testa todos os critérios x profundidades via CV 5-fold.
-    Métrica de seleção: F1 da classe Emergência (1) — evitar falsos negativos.
+    Métrica de seleção: F1 da classe Emergência (1) - evitar falsos negativos.
     """
 
     os.makedirs(OUTPUT_DIR, exist_ok=True)
@@ -70,7 +70,7 @@ def buscar_melhor_combinacao(X_train, y_train):
             # f1 com pos_label=1 = F1 da classe Emergência
             scores = cross_val_score(
                 modelo, X_train, y_train, cv=5,
-                scoring="f1"          # f1 binário — pos_label=1 por padrão
+                scoring="f1"          # f1 binário - pos_label=1 por padrão
             )
             resultados.append({
                 "criterio": criterio,
@@ -116,7 +116,7 @@ def buscar_melhor_combinacao(X_train, y_train):
                color="black", linestyle="--", linewidth=1.2, label="Melhor config.")
     ax.set_title("F1-Emergência x Profundidade por Critério (Validação Cruzada 5-fold)")
     ax.set_xlabel("Profundidade máxima (max_depth)")
-    ax.set_ylabel("F1-Score — Classe Emergência (1)")
+    ax.set_ylabel("F1-Score - Classe Emergência (1)")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_busca_criterio_profundidade.png", dpi=150)
@@ -211,7 +211,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
     ax.plot([0, 1], [0, 1], "k--", lw=1)
     ax.set_xlabel("Taxa de Falsos Positivos")
     ax.set_ylabel("Taxa de Verdadeiros Positivos (Recall)")
-    ax.set_title(f"Curva ROC — Árvore de Decisão\ncritério={criterio}  max_depth={prof}")
+    ax.set_title(f"Curva ROC - Árvore de Decisão\ncritério={criterio}  max_depth={prof}")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_curva_roc.png", dpi=150)
@@ -226,7 +226,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         ax.text(val + 0.002, bar.get_y() + bar.get_height()/2,
                 f"{val:.3f}", va="center", fontsize=8)
     ax.set_xlabel("Importância (critério: " + criterio + ")")
-    ax.set_title(f"Importância das Variáveis — Árvore de Decisão\ncritério={criterio}  max_depth={prof}")
+    ax.set_title(f"Importância das Variáveis - Árvore de Decisão\ncritério={criterio}  max_depth={prof}")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/dt_importancia_variaveis.png", dpi=150)
     plt.close()
@@ -239,7 +239,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
         plot_tree(modelo, ax=ax, feature_names=feature_names,
                   class_names=["Não-Emergência", "Emergência"],
                   filled=True, rounded=True, fontsize=9)
-        ax.set_title(f"Árvore de Decisão — critério={criterio}  max_depth={prof}", fontsize=13)
+        ax.set_title(f"Árvore de Decisão - critério={criterio}  max_depth={prof}", fontsize=13)
         plt.tight_layout()
         plt.savefig(f"{OUTPUT_DIR}/dt_arvore.png", dpi=110)
         plt.close()
@@ -252,7 +252,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, criterio, prof):
 
         print(f"[DT]>>Regras em texto           : {OUTPUT_DIR}/dt_regras.txt")
     else:
-        print("   (Árvore muito profunda para visualizar — omitido)")
+        print("   (Árvore muito profunda para visualizar - omitido)")
 
     return modelo, acc_treino, acc_teste, f1_emerg, auc
 

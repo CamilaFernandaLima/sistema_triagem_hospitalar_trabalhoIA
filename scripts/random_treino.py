@@ -1,5 +1,5 @@
 """
-Random Forest + Comparação com Árvore de Decisão
+Random Forest
 ==========================================================================
 Dataset: data/data_split/train.csv e test.csv (gerados por split.py)
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
@@ -7,7 +7,6 @@ Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 Etapas:
   1. Busca de hiperparâmetros (n_estimators x max_depth) via CV 5-fold
   2. Ajuste de threshold para minimizar falsos negativos (emergências perdidas)
-  3. Comparação visual direta: Árvore de Decisão vs Random Forest
 """
 
 import pandas as pd
@@ -101,7 +100,7 @@ def buscar_hiperparametros(X_train, y_train):
     ax.set_xticks(range(len(pivot.columns))); ax.set_xticklabels(pivot.columns)
     ax.set_yticks(range(len(pivot.index)));   ax.set_yticklabels(pivot.index)
     ax.set_xlabel("max_depth"); ax.set_ylabel("n_estimators")
-    ax.set_title("F1-Emergência (CV 5-fold) — Random Forest")
+    ax.set_title("F1-Emergência (CV 5-fold) - Random Forest")
     for i in range(len(pivot.index)):
         for j in range(len(pivot.columns)):
             ax.text(j, i, f"{pivot.values[i, j]:.3f}",
@@ -121,7 +120,7 @@ def encontrar_threshold(modelo, X_test, y_test):
     """
     Encontra o threshold que maximiza o F1-Emergência.
     Threshold < 0.5 aumenta recall (menos falsos negativos)
-    ao custo de mais falsos positivos — aceitável em triagem.
+    ao custo de mais falsos positivos - aceitável em triagem.
     """
     y_prob = modelo.predict_proba(X_test)[:, 1]
     precisoes, recalls, thresholds = precision_recall_curve(y_test, y_prob)
@@ -213,7 +212,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     disp = ConfusionMatrixDisplay(cm, display_labels=["Não-Emergência", "Emergência"])
     fig, ax = plt.subplots(figsize=(6, 5))
     disp.plot(ax=ax, cmap="Blues", colorbar=False)
-    ax.set_title(f"Matriz de Confusão — Random Forest\nn_estimators={melhor_n}  max_depth={melhor_prof}  threshold={threshold_otimo:.2f}")
+    ax.set_title(f"Matriz de Confusão - Random Forest\nn_estimators={melhor_n}  max_depth={melhor_prof}  threshold={threshold_otimo:.2f}")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_matriz_confusao.png", dpi=150)
     plt.close()
@@ -226,7 +225,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     ax.plot([0, 1], [0, 1], "k--", lw=1, label="Aleatório")
     ax.set_xlabel("Taxa de Falsos Positivos")
     ax.set_ylabel("Taxa de Verdadeiros Positivos (Recall)")
-    ax.set_title(f"Curva ROC — Random Forest")
+    ax.set_title(f"Curva ROC - Random Forest")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_curva_roc.png", dpi=150)
@@ -241,7 +240,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
         ax.text(val + 0.002, bar.get_y() + bar.get_height()/2,
                 f"{val:.3f}", va="center", fontsize=8)
     ax.set_xlabel("Importância média (Gini por floresta)")
-    ax.set_title(f"Importância das Variáveis — Random Forest\nn_estimators={melhor_n}  max_depth={melhor_prof}")
+    ax.set_title(f"Importância das Variáveis - Random Forest\nn_estimators={melhor_n}  max_depth={melhor_prof}")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/rf_importancia_variaveis.png", dpi=150)
     plt.close()

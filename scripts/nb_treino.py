@@ -1,5 +1,5 @@
 """
-Naive Bayes — GaussianNB
+Naive Bayes - GaussianNB
 =======================================================================
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 """
@@ -61,7 +61,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
     tempo_total = fim_treino - inicio_treino
 
     with open(f"{OUTPUT_DIR}/nb_metricas.txt", "w", encoding="utf-8") as f:
-        f.write("=== MÉTRICAS — NAIVE BAYES ===\n\n")
+        f.write("=== MÉTRICAS - NAIVE BAYES ===\n\n")
         f.write(f"Modelo: GaussianNB\n\n")
         f.write(f"Acurácia no Treino: {acc_treino:.4f}\n")
         f.write(f"Acurácia no Teste: {acc_teste:.4f}\n")
@@ -88,7 +88,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
         json.dump(json_resumo, f, indent=4)
 
     with open(f"{OUTPUT_DIR}/nb_relatorio_classificacao.txt", "w", encoding="utf-8") as f:
-        f.write("=== RELATÓRIO DE CLASSIFICAÇÃO — NAIVE BAYES ===\n\n")
+        f.write("=== RELATÓRIO DE CLASSIFICAÇÃO - NAIVE BAYES ===\n\n")
         f.write("Modelo: GaussianNB\n\n")
         f.write(classification_report(
             y_test, y_pred,
@@ -103,7 +103,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
     disp = ConfusionMatrixDisplay(cm, display_labels=["Não-Emergência", "Emergência"])
     fig, ax = plt.subplots(figsize=(6, 5))
     disp.plot(ax=ax, cmap="Oranges", colorbar=False)
-    ax.set_title("Matriz de Confusão — Naive Bayes\nGaussianNB")
+    ax.set_title("Matriz de Confusão - Naive Bayes\nGaussianNB")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/nb_matriz_confusao.png", dpi=150)
     plt.close()
@@ -116,7 +116,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
     ax.plot([0, 1], [0, 1], "k--", lw=1)
     ax.set_xlabel("Taxa de Falsos Positivos")
     ax.set_ylabel("Taxa de Verdadeiros Positivos (Recall)")
-    ax.set_title("Curva ROC — Naive Bayes\nGaussianNB")
+    ax.set_title("Curva ROC - Naive Bayes\nGaussianNB")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/nb_curva_roc.png", dpi=150)
@@ -127,7 +127,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test, melhor_threshold):
 
 def buscar_melhor_threshold(X_train, y_train, X_test, y_test):
     print("=" * 57)
-    print("BUSCA DO MELHOR THRESHOLD — NAIVE BAYES")
+    print("BUSCA DO MELHOR THRESHOLD - NAIVE BAYES")
     print("=" * 57 + "\n")
     print(f"   {'Threshold':<12} {'F1-Emerg.':<14} {'Recall':<12} {'Precisão':<12} {'Acur. Teste'}")
     print("   " + "-" * 62)
@@ -167,7 +167,7 @@ def buscar_melhor_threshold(X_train, y_train, X_test, y_test):
 
     # ── Salvar tabela em txt ──────────────────────────────────
     with open(f"{OUTPUT_DIR}/nb_busca_threshold.txt", "w", encoding="utf-8") as f:
-        f.write("=== BUSCA DO MELHOR THRESHOLD — NAIVE BAYES ===\n\n")
+        f.write("=== BUSCA DO MELHOR THRESHOLD - NAIVE BAYES ===\n\n")
         f.write(f"{'Threshold':<12} {'F1-Emerg.':<14} {'Recall':<12} {'Precisão':<12} {'Acur. Teste'}\n")
         f.write("-" * 62 + "\n")
         for _, row in df_res.iterrows():
@@ -198,7 +198,7 @@ def buscar_melhor_threshold(X_train, y_train, X_test, y_test):
 
     ax.set_xlabel("Threshold")
     ax.set_ylabel("Score")
-    ax.set_title("F1, Recall e Precisão por Threshold — Naive Bayes\n(quanto menor o threshold, mais casos classificados como Emergência)")
+    ax.set_title("F1, Recall e Precisão por Threshold - Naive Bayes\n(quanto menor o threshold, mais casos classificados como Emergência)")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/nb_busca_threshold.png", dpi=150)

@@ -1,5 +1,5 @@
 """
- — Script 4: SVM (Support Vector Machine)
+ - Script 4: SVM (Support Vector Machine)
 ======================================================
 Dataset: data/data_split/train.csv e test.csv (gerados por split.py)
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
@@ -7,7 +7,7 @@ Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 Etapas:
   1. Busca de hiperparâmetros (kernel x C x gamma) via CV 5-fold
   2. Ajuste de threshold para minimizar falsos negativos
-  3. Geração de métricas e gráficos para o relatório
+  3. Geração de métricas e gráficos
 """
 
 import pandas as pd
@@ -32,49 +32,28 @@ import os
 import time
 import json
 
+
+from util import carregar_dados, separar_xy, FEATURES, TARGET_COLUMN
+
 # ──────────────────────────────────────────────────────────────
 # CONFIGURAÇÃO
 # ──────────────────────────────────────────────────────────────
 TRAIN_PATH    = "data/data_split/train.csv"
 TEST_PATH     = "data/data_split/test.csv"
-TARGET_COLUMN = "KTAS_target_binario"
 OUTPUT_DIR    = "resultados/svm"
 RANDOM_STATE  = 42
 
-FEATURES = [
-    "Sex", "Age", "Injury", "Mental", "Pain", "NRS_pain",
-    "SBP", "DBP", "HR", "RR", "BT", "Saturation"
-]
-
-# Grid de busca — balanceado para 4 núcleos de CPU
+# Grid de busca - balanceado para 4 núcleos de CPU
 KERNELS = ["rbf", "linear", "poly"]
 C_LIST  = [0.1, 1, 10, 100]
 GAMMA_LIST = ["scale", "auto"]   # só usado por rbf e poly
 # ──────────────────────────────────────────────────────────────
 
 
-def carregar_dados():
-    for path in [TRAIN_PATH, TEST_PATH]:
-        if not os.path.exists(path):
-            raise FileNotFoundError(
-                f"\n '{path}' não encontrado.\n"
-                "Execute split.py antes deste script."
-            )
-    train = pd.read_csv(TRAIN_PATH)
-    test  = pd.read_csv(TEST_PATH)
-    print(f"[SVM]>> Treino: {train.shape}   Teste: {test.shape}\n")
-    return train, test
-
-
-def separar_xy(df):
-    features = [c for c in FEATURES if c in df.columns]
-    return df[features], df[TARGET_COLUMN]
-
-
 def buscar_hiperparametros(X_train, y_train):
     """
     Busca kernel x C x gamma via CV 5-fold.
-    SVM exige StandardScaler — incluído no Pipeline para evitar data leakage.
+    SVM exige StandardScaler - incluído no Pipeline para evitar data leakage.
     Métrica: F1-Emergência.
     """
     print("[SVM]>> Buscando melhores hiperparâmetros do SVM")
@@ -128,9 +107,9 @@ def buscar_hiperparametros(X_train, y_train):
         ax.plot(sub["C"].astype(str), sub["f1_media"], marker="o",
                 label=f"kernel={kernel}", color=cores_kernel[kernel], linewidth=2)
     ax.axhline(melhor["f1_media"], color="black", linestyle="--", linewidth=0.8, alpha=0.5)
-    ax.set_title("F1-Emergência x C por Kernel — SVM (CV 5-fold)")
+    ax.set_title("F1-Emergência x C por Kernel - SVM (CV 5-fold)")
     ax.set_xlabel("C (regularização)")
-    ax.set_ylabel("F1-Score — Classe Emergência")
+    ax.set_ylabel("F1-Score - Classe Emergência")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/svm_busca_hiperparametros.png", dpi=150)
@@ -223,7 +202,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     disp = ConfusionMatrixDisplay(cm, display_labels=["Não-Emergência", "Emergência"])
     fig, ax = plt.subplots(figsize=(6, 5))
     disp.plot(ax=ax, cmap="Purples", colorbar=False)
-    ax.set_title(f"Matriz de Confusão — SVM\nkernel={kernel}  C={C}  threshold={thr:.2f}")
+    ax.set_title(f"Matriz de Confusão - SVM\nkernel={kernel}  C={C}  threshold={thr:.2f}")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/svm_matriz_confusao.png", dpi=150)
     plt.close()
@@ -236,7 +215,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
     ax.plot([0, 1], [0, 1], "k--", lw=1, label="Aleatório")
     ax.set_xlabel("Taxa de Falsos Positivos")
     ax.set_ylabel("Taxa de Verdadeiros Positivos (Recall)")
-    ax.set_title("Curva ROC — SVM")
+    ax.set_title("Curva ROC - SVM")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/svm_curva_roc.png", dpi=150)
@@ -248,10 +227,10 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test):
 
 if __name__ == "__main__":
     print("=" * 57)
-    print("   — SVM (Support Vector Machine)")
+    print("   - SVM (Support Vector Machine)")
     print("=" * 57 + "\n")
 
-    train, test = carregar_dados()
+    train, test = carregar_dados(TRAIN_PATH, TEST_PATH)
     X_train, y_train = separar_xy(train)
     X_test,  y_test  = separar_xy(test)
 

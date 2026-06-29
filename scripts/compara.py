@@ -118,8 +118,8 @@ def plotar_tempo_vs_f1(df, arquivo_saida):
         )
         
     ax.set_title("Eficiência vs Desempenho\n(Tempo de Treino x F1-Score)", fontsize=14, pad=15)
-    ax.set_xlabel("Tempo de Treinamento (segundos) — Quanto MENOR, melhor", fontsize=12)
-    ax.set_ylabel("F1-Score (Emergência) — Quanto MAIOR, melhor", fontsize=12)
+    ax.set_xlabel("Tempo de Treinamento (segundos) - Quanto MENOR, melhor", fontsize=12)
+    ax.set_ylabel("F1-Score (Emergência) - Quanto MAIOR, melhor", fontsize=12)
     
     # Destaca em verde a área ideal (Canto Superior Esquerdo) de forma sutil
     ax.grid(True, linestyle='--', alpha=0.7, zorder=0)

@@ -1,5 +1,5 @@
 """
-KNN — K-Nearest Neighbors
+KNN - K-Nearest Neighbors
 =======================================================================
 Target : KTAS_target_binario  ->  1 = Emergência | 0 = Não-Emergência
 """
@@ -77,7 +77,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test,melhor_k):
         json.dump(json_resumo, f, indent=4, ensure_ascii=False)
 
     with open(f"{OUTPUT_DIR}/knn_metricas.txt", "w", encoding="utf-8") as f:
-        f.write("=== MÉTRICAS — KNN ===\n\n")
+        f.write("=== MÉTRICAS - KNN ===\n\n")
         f.write(f"K : {melhor_k}\n")
         f.write(f"Métrica de distância : {METRIC}\n\n")
         f.write(f"Acurácia no Treino : {acc_treino:.4f}\n")
@@ -88,7 +88,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test,melhor_k):
         f.write(f"AUC-ROC : {auc:.4f}\n")
 
     with open(f"{OUTPUT_DIR}/knn_relatorio_classificacao.txt", "w", encoding="utf-8") as f:
-        f.write("=== RELATÓRIO DE CLASSIFICAÇÃO — KNN ===\n\n")
+        f.write("=== RELATÓRIO DE CLASSIFICAÇÃO - KNN ===\n\n")
         f.write(f"K={melhor_k}  |  métrica={METRIC}\n\n")
         f.write(classification_report(
             y_test, y_pred,
@@ -103,7 +103,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test,melhor_k):
     disp = ConfusionMatrixDisplay(cm, display_labels=["Não-Emergência", "Emergência"])
     fig, ax = plt.subplots(figsize=(6, 5))
     disp.plot(ax=ax, cmap="Blues", colorbar=False)
-    ax.set_title(f"Matriz de Confusão — KNN\nK={melhor_k}  métrica={METRIC}")
+    ax.set_title(f"Matriz de Confusão - KNN\nK={melhor_k}  métrica={METRIC}")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/knn_matriz_confusao.png", dpi=150)
     plt.close()
@@ -116,7 +116,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test,melhor_k):
     ax.plot([0, 1], [0, 1], "k--", lw=1)
     ax.set_xlabel("Taxa de Falsos Positivos")
     ax.set_ylabel("Taxa de Verdadeiros Positivos (Recall)")
-    ax.set_title(f"Curva ROC — KNN\nK={melhor_k}  métrica={METRIC}")
+    ax.set_title(f"Curva ROC - KNN\nK={melhor_k}  métrica={METRIC}")
     ax.legend()
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/knn_curva_roc.png", dpi=150)
@@ -127,7 +127,7 @@ def treinar_e_avaliar(X_train, y_train, X_test, y_test,melhor_k):
 
 def buscar_melhor_k(X_train, y_train, X_test, y_test):
     print("=" * 57)
-    print("BUSCA DO MELHOR K — KNN")
+    print("BUSCA DO MELHOR K - KNN")
     print("=" * 57 + "\n")
     print(f"   {'K':<6} {'F1-Emerg.':<14} {'Acur. Treino':<16} {'Acur. Teste':<14} {'Gap'}")
     print("   " + "-" * 58)
@@ -164,7 +164,7 @@ def buscar_melhor_k(X_train, y_train, X_test, y_test):
 
     # ── Salvar tabela em txt ───────────────────────────────────
     with open(f"{OUTPUT_DIR}/knn_busca_k.txt", "w", encoding="utf-8") as f:
-        f.write("=== BUSCA DO MELHOR K — KNN ===\n\n")
+        f.write("=== BUSCA DO MELHOR K - KNN ===\n\n")
         f.write(f"{'K':<6} {'F1-Emerg.':<14} {'Acur. Treino':<16} {'Acur. Teste':<14} {'Gap'}\n")
         f.write("-" * 58 + "\n")
         for _, row in df_res.iterrows():
@@ -204,7 +204,7 @@ def buscar_melhor_k(X_train, y_train, X_test, y_test):
     lines2, labels2 = ax2.get_legend_handles_labels()
     ax1.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
 
-    plt.title("F1-Emergência e Gap por K — KNN\n(linha pontilhada vermelha = gap 0.10)")
+    plt.title("F1-Emergência e Gap por K - KNN\n(linha pontilhada vermelha = gap 0.10)")
     plt.tight_layout()
     plt.savefig(f"{OUTPUT_DIR}/knn_busca_k.png", dpi=150)
     plt.close()
@@ -220,7 +220,7 @@ if __name__ == "__main__":
     print("K-Nearest Neighbors (KNN)")
     print("=" * 57 + "\n")
 
-    print(">>Busca do Melhor K — KNN")
+    print(">>Busca do Melhor K - KNN")
 
     train, test = carregar_dados(TRAIN_PATH, TEST_PATH)
     X_train, y_train = separar_xy(train)
