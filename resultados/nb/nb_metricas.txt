@@ -1,0 +1,9 @@
+=== MÉTRICAS — NAIVE BAYES ===
+
+Modelo: GaussianNB
+
+Acurácia no Treino: 0.5884
+Acurácia no Teste: 0.6614
+Gap (treino - teste): -0.0731 (sem overfitting significativo)
+F1 Emergência (teste): 0.7208
+AUC-ROC: 0.6979

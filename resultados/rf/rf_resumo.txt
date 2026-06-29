@@ -1,0 +1,19 @@
+Avaliação do modelo Random Forest:
+n_estimators : 200
+max_depth    : 4
+Threshold    : 0.29
+Acurácia no Treino     : 0.7749
+Acurácia no Teste      : 0.6732
+Gap (treino - teste)   : 0.1017  > overfitting moderado
+F1 Emergência (teste)  : 0.7713   <- métrica principal
+AUC-ROC                : 0.7225
+
+Relatório de Classificação:
+                    precision    recall  f1-score   support
+
+Não-Emergência (0)       0.82      0.29      0.43       107
+    Emergência (1)       0.65      0.95      0.77       147
+
+          accuracy                           0.67       254
+         macro avg       0.73      0.62      0.60       254
+      weighted avg       0.72      0.67      0.63       254

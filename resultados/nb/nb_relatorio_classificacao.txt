@@ -1,0 +1,12 @@
+=== RELATÓRIO DE CLASSIFICAÇÃO — NAIVE BAYES ===
+
+Modelo: GaussianNB
+
+                    precision    recall  f1-score   support
+
+Não-Emergência (0)       0.61      0.53      0.57       107
+    Emergência (1)       0.69      0.76      0.72       147
+
+          accuracy                           0.66       254
+         macro avg       0.65      0.64      0.65       254
+      weighted avg       0.66      0.66      0.66       254

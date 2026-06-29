@@ -1,0 +1,14 @@
+{
+    "Modelo": "Random Forest",
+    "Acuracia_Treino": 0.7749259624876604,
+    "Acuracia_Teste": 0.6732283464566929,
+    "Gap": 0.1016976160309675,
+    "F1_Emergencia": 0.7713498622589532,
+    "AUC_ROC": 0.7224871256913981,
+    "tempo_treino": 3.3994905948638916,
+    "Parametros": {
+        "n_estimators": 200,
+        "max_depth": 4,
+        "threshold": 0.2853932601862676
+    }
+}
