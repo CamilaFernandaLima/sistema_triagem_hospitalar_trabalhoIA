@@ -13,18 +13,3 @@ Não-Emergência (0)       0.79      0.45      0.57       107
           accuracy                           0.72       254
          macro avg       0.74      0.68      0.68       254
       weighted avg       0.73      0.72      0.70       254
-Acurácia no Treino     : 0.7996
-Acurácia no Teste      : 0.7165
-Gap (treino - teste)   : 0.0831  >  overfitting moderado
-F1 Emergência (teste)  : 0.7882   <- métrica principal
-AUC-ROC                : 0.7594
-
-Relatório de Classificação:
-                    precision    recall  f1-score   support
-
-Não-Emergência (0)       0.79      0.45      0.57       107
-    Emergência (1)       0.69      0.91      0.79       147
-
-          accuracy                           0.72       254
-         macro avg       0.74      0.68      0.68       254
-      weighted avg       0.73      0.72      0.70       254

@@ -6,7 +6,7 @@
     "F1_Emergencia": 0.7207792207792207,
     "Recall_Emergencia": 0.7551020408163265,
     "AUC_ROC": 0.6979464683069491,
-    "tempo_treino": 0.01134181022644043,
+    "tempo_treino": 0.11271142959594727,
     "Parametros": {
         "Modelo": "GaussianNB",
         "threshold": 0.15

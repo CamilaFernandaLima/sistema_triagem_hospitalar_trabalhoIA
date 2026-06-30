@@ -6,7 +6,7 @@
     "F1_Emergencia": 0.7713498622589532,
     "Recall_Emergencia": 0.9523809523809523,
     "AUC_ROC": 0.7224871256913981,
-    "tempo_treino": 0.6725945472717285,
+    "tempo_treino": 3.2391769886016846,
     "Parametros": {
         "n_estimators": 200,
         "max_depth": 4,

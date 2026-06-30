@@ -6,11 +6,11 @@
     "F1_Emergencia": 0.788235294117647,
     "Recall_Emergencia": 0.9115646258503401,
     "AUC_ROC": 0.7593616886006739,
-    "tempo_treino": 0.24722051620483398,
+    "tempo_treino": 1.2141032218933105,
     "Parametros": {
         "kernel": "rbf",
         "C": 1.0,
         "gamma": "scale",
-        "threshold": 0.33241101441284704
+        "threshold": 0.3324110144128469
     }
 }

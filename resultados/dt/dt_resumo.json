@@ -6,7 +6,7 @@
     "F1_Emergencia": 0.6759581881533101,
     "AUC_ROC": 0.6719435437726493,
     "Recall_Emergencia": 0.6598639455782312,
-    "tempo_treino": 0.022179603576660156,
+    "tempo_treino": 0.13396692276000977,
     "Parametros": {
         "profundidade": 4,
         "criterio": "entropy"
